@@ -43,8 +43,8 @@ class SymbolTable():
             raise ValueError
 
 
-def ReadAsm(asmFile):
-    with open(asmFile) as f:
+def ReadAsm(asm_file):
+    with open(asm_file) as f:
         # process text file
         lines = f.readlines()
         cleaned_asm = []
@@ -118,34 +118,34 @@ def InitializeSymboleTable():
 
     return st
 
-def AddLabelToSymbolTable(asmLines, symbolTable):
+def AddLabelToSymbolTable(asm_lines, symbol_table):
     # first pass: count lines and adds label symbol
     count = 0
-    for line in asmLines:
+    for line in asm_lines:
         instruction = Parser(line)
         if instruction.type == 'L_INSTRUCTION':
-            symbolTable.addEntry(instruction.symbol, count)
+            symbol_table.addEntry(instruction.symbol, count)
         else:
             count += 1
     # second pass
     addr = 16
-    for line in asmLines:
+    for line in asm_lines:
         instruction = Parser(line)
-        if instruction.type == 'A_INSTRUCTION' and not symbolTable.contains(instruction.symbol) and instruction.symbol[0].isalpha():
-            symbolTable.addEntry(instruction.symbol, addr)
+        if instruction.type == 'A_INSTRUCTION' and not symbol_table.contains(instruction.symbol) and instruction.symbol[0].isalpha():
+            symbol_table.addEntry(instruction.symbol, addr)
             addr += 1
-    return symbolTable
+    return symbol_table
 
 # trascribe each line to binary
-def Code(instruction ,st, dest_table, comp_table, jump_table):
+def Code(instruction ,symbol_table, dest_table, comp_table, jump_table):
     
     instruction = Parser(line)
 
     # A-instruction
     if instruction.type == 'A_INSTRUCTION':
         if instruction.symbol[0].isalpha(): # look up table:
-            assert st.contains(instruction.symbol)
-            integerValue = st.getAddress(instruction.symbol)
+            assert symbol_table.contains(instruction.symbol)
+            integerValue = symbol_table.getAddress(instruction.symbol)
         else:
             integerValue = int(instruction.symbol)
         # convert to binary

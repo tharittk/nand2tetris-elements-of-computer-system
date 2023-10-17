@@ -270,10 +270,11 @@ class CodeWrite():
 
                 toWrite = """
                 // push {segment} {i}
-                @{i}
-                D = A
                 @{baseAddr}
-                A = M + D
+                D = A
+                @{i}
+                D = D + A
+                A = D
                 D = M
                 @SP
                 A = M 
@@ -332,9 +333,9 @@ class CodeWrite():
 
                 toWrite = """
                 // pop {segment} {i}
-                @{i}
-                D = A
                 @{baseAddr}
+                D = M
+                @{i}
                 D = D + A
                 @addrTemp_{line_num}
                 M = D 
@@ -362,9 +363,9 @@ class CodeWrite():
             elif segment == 'temp':
                 toWrite = """
                 // pop {segment} {i}
-                @{i}
-                D = A
                 @5
+                D = A 
+                @{i}
                 D = D + A
                 @addrTemp_{line_num}
                 M = D
@@ -413,9 +414,9 @@ class Main():
         print("Start a VM Translator...")
         #fname = "./SimpleAdd.vm"
         fname = "./BasicTest.vm" # fail
-        fname = "./PointerTest.vm"
+        #fname = "./PointerTest.vm"
         #fname = "./StackTest.vm"
-        fname = "./StaticTest.vm"
+        #fname = "./StaticTest.vm"
         
         commands = Parser(fname)
         writer = CodeWrite(fname)

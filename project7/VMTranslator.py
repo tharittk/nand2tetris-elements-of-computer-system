@@ -88,7 +88,7 @@ class CodeWrite():
     def __init__(self, vmFile):
 
         # FIX LATER
-        self.fileName = vmFile
+        self.fileName = vmFile[2:-3]
         self.outName = vmFile[:-2] + 'asm'
         self.staticBaseAddr = 16
         self.tempBaseAddr = 5
@@ -271,7 +271,7 @@ class CodeWrite():
                 toWrite = """
                 // push {segment} {i}
                 @{baseAddr}
-                D = A
+                D = M
                 @{i}
                 D = D + A
                 A = D
@@ -357,7 +357,6 @@ class CodeWrite():
                 D = M
                 @{filename}.{i}
                 M = D
-      
                 """.format(segment = segment, i= i, filename = self.fileName)
 
             elif segment == 'temp':
@@ -413,10 +412,10 @@ class Main():
         # File read
         print("Start a VM Translator...")
         #fname = "./SimpleAdd.vm"
-        fname = "./BasicTest.vm" # fail
+        #fname = "./BasicTest.vm" # fail
         #fname = "./PointerTest.vm"
         #fname = "./StackTest.vm"
-        #fname = "./StaticTest.vm"
+        fname = "./StaticTest.vm"
         
         commands = Parser(fname)
         writer = CodeWrite(fname)

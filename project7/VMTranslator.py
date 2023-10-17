@@ -88,57 +88,310 @@ class CodeWrite():
     def __init__(self, vmFile):
 
         # FIX LATER
+        self.fileName = vmFile
         self.outName = vmFile[:-2] + 'asm'
+        self.staticBaseAddr = 16
+        self.tempBaseAddr = 5
 
 
     # Write to the output file the assembly code of the
     # arithmetic-logical command
-    def writeArithmetic(self, command):
+    def writeArithmetic(self, command, *line_num):
         toWrite = ''
         # you can tell at the garbarge at | 0  | 1 | > the zero becomes 0+1 while the 1 stays the same with SP points at
         if command == 'add':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nA = M - 2\nM = M + D\n@SP\nM = M -1\n'
+            toWrite = """"
+            // add
+            @SP
+            A = M - 1
+            D = M
+            @SP
+            A = M - 2
+            M = M + D
+            @SP
+            M = M -1
+            """
         elif command == 'sub':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nA = M - 2\nM = M - D\n@SP\nM = M -1\n'
+            toWrite = """"
+            // sub
+            @SP
+            A = M - 1
+            D = M
+            @SP
+            A = M - 2
+            M = M - D
+            @SP
+            M = M -1
+            """
         elif command == 'neg':
-            toWrite = '@SP\nA = M - 1\nM = -M\n'
+            toWrite = """
+            // neg
+            @SP
+            A = M - 1
+            M = -M
+            """
 
         # Store value issue
         elif command == 'eq':
-            toWrite = ''
+            toWrite = """"
+            // eq
+            @SP
+            A = M - 1
+            D = M
+            @SP
+            A = M - 2
+            D = M - D
+            @EQ_{line_num}
+            D;JEQ
+            M = 0
+            @SP
+            M = M - 1
+            @END_{line_num}
+            0;JMP
+            (EQ_{line_num})
+            M = -1
+            @SP
+            M = M - 1
+            (END_{line_num})
+            """.format(line_num = line_num)
         elif command == 'gt':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\nD=M\n@R1\nD;JGT\n@R0\n'
+            toWrite = """"
+            // gt
+            @SP
+            A = M - 1
+            D = M
+            @SP
+            A = M - 2
+            D = M - D
+            @EQ_{line_num}
+            D;JGT
+            M = 0
+            @SP
+            M = M - 1
+            @END_{line_num}
+            0;JMP
+            (EQ_{line_num})
+            M = -1
+            @SP
+            M = M - 1
+            (END_{line_num})
+            """.format(line_num = line_num)
         elif command == 'lt':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\nD=M\n@R1\nD;JLT\n@R0\n'
-        # jump to R0 or R1 if A-D JEQ, JLT, JGT
-
-
+            toWrite = """"
+            // eq
+            @SP
+            A = M - 1
+            D = M
+            @SP
+            A = M - 2
+            D = M - D
+            @EQ_{line_num}
+            D;JLT
+            M = 0
+            @SP
+            M = M - 1
+            @END_{line_num}
+            0;JMP
+            (EQ_{line_num})
+            M = -1
+            @SP
+            M = M - 1
+            (END_{line_num})
+            """.format(line_num = line_num)        # jump to R0 or R1 if A-D JEQ, JLT, JGT
 
         elif command == 'and':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nA = M - 2\nM = M & D\n@SP\nM = M -1\n'
+            toWrite = """"
+            // and
+            @SP
+            A = M - 1
+            D = M
+            @SP
+            A = M - 2
+            M = M & D
+            @SP
+            M = M -1
+            """
         elif command == 'or':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nA = M - 2\nM = M | D\n@SP\nM = M -1\n'
+            toWrite = """"
+            // and
+            @SP
+            A = M - 1
+            D = M
+            @SP
+            A = M - 2
+            M = M | D
+            @SP
+            M = M -1
+            """        
         elif command == 'not':
-            toWrite = '@SP\nA = M - 1\nM = !M\n'
+            toWrite = """
+            @SP
+            A = M - 1
+            M = !M
+            """
         
-
         with open(self.outName, 'a') as f:
             f.write(toWrite)
     
     # Write to the output filethe assembly code of the
     # push or pop command
-    def writePushPop(self):
-        return 0
+    def writePushPop(self, command, segment, i, *line_num):
+
+        if segment == 'local':
+            baseAddr = 'LCL'
+        elif segment == 'argument':
+            baseAddr = 'ARG'
+        elif segment == 'THIS':
+            baseAddr = 'THIS'
+        elif segment == 'THAT':
+            baseAddr = 'THAT'    
+        
+
+        if command == "C_PUSH":
+            if segment == 'constant':
+                toWrite = """
+                // push {segment} 
+                @i
+                D = A
+                @SP
+                A = M
+                M = D
+                @SP
+                M = M + 1
+                """.format(segment = segment, i = i)
+
+            elif segment in ['local', 'argument', 'this', 'that']:
+
+                toWrite = """
+                // push {segment} {i}
+                @{i}
+                D = A
+                @{baseAddr}
+                A = M + D
+                D = M
+                @SP
+                A = M 
+                M = D
+                @SP
+                M = M + 1
+                """.format(segment = segment, i= i, baseAddr = baseAddr)
+
+            elif segment == 'static':
+                toWrite = """
+                // push {segment}} {i}
+                @{filename}.{i}
+                A = M 
+                D = M
+                @SP
+                A = M 
+                M = D
+                @SP
+                M = M + 1
+                """.format(segment = segment, i= i, filenme = self.fileName)
+            elif segment == 'temp':
+                toWrite = """
+                // push {segment} {i}
+                @5
+                D = A 
+                @i
+                D = D + A
+                A = D
+                D = M
+                @SP
+                A = M
+                M = D
+                @SP
+                M = M + 1
+                """.format(segment = segment, i= i)
+            elif segment == "pointer":
+                toWrite = """
+                // push pointer {i}
+                @{i}
+                D = A
+                @3
+                D = D + A
+                A = D
+                D = M
+                @SP
+                A = M 
+                M = D
+                @SP
+                M = M + 1
+                """.format(i= i)
+
+        elif command == "C_POP":
+
+
+            if segment in ['local', 'argument', 'this', 'that']:
+
+                toWrite = """
+                // pop {segment} {i}
+                @{i}
+                D = A
+                @{baseAddr}
+                D = D + A
+                @addrTemp_{line_num}
+                M = D
+                @SP
+                M = M - 1
+                A = M
+                D = M
+                @addrTemp_{line_num}
+                A = M
+                M = D            
+                """.format(segment = segment, i= i, line_num = line_num)
+
+            elif segment == 'static':
+                toWrite = """
+                // pop {segment}} {i}
+                @SP
+                M = M - 1
+                A = M
+                D = M
+                @{filename}.{i}
+                M = D
+      
+                """.format(segment = segment, i= i, filenme = self.fileName)
+
+            elif segment == 'temp':
+                toWrite = """
+                // pop {segment} {i}
+                @{i}
+                D = A
+                @5
+                D = D + A
+                @addrTemp_{line_num}
+                M = D
+                @SP
+                M = M - 1
+                A = M
+                D = M
+                @addrTemp_{line_num}
+                A = M
+                M = D          
+                """.format(segment = segment, i= i, line_num = line_num)
+
+            elif segment == "pointer":
+                toWrite = """
+                // pop pointer {i}
+                @{i}
+                D = A
+                @3
+                D = D + A
+                @addrTemp_{line_num}
+                M = D
+                @SP
+                M = M - 1
+                A = M
+                D = M
+                @addrTemp_{line_num}
+                A = M
+                M = D          
+                """.format(i= i, line_num = line_num)
+
+        else:
+            raise ValueError 
     
-        '@SP'
-        '@LCL'
-        '@ARG'
-        '@THIS'
-        '@THAT'
-        'constant directly to stack'
-        'static starts 16 to 255'
-        'temp addr = 5 to 12'
-        'pointer' 'push pop pointer 0 == push pop THIS' ', push pop pointer 1 === push pop THAT'
     
     # Close the output file
     def close(self):
@@ -162,7 +415,7 @@ class Main():
 
         while commands.hasMoreLines():
             # do sth
-            print("Full Command: ", commands.currentCommand)
+            print("Full Command: ", commands.currentCommand, commands.currentCommandIndex)
             print(commands.commandType())
             print(commands.arg1())
             if commands.commandType() in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:

@@ -97,25 +97,27 @@ class CodeWrite():
         toWrite = ''
         # you can tell at the garbarge at | 0  | 1 | > the zero becomes 0+1 while the 1 stays the same with SP points at
         if command == 'add':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M + D\n'
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nA = M - 2\nM = M + D\n@SP\nM = M -1\n'
         elif command == 'sub':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\n'
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nA = M - 2\nM = M - D\n@SP\nM = M -1\n'
         elif command == 'neg':
             toWrite = '@SP\nA = M - 1\nM = -M\n'
 
         # Store value issue
         elif command == 'eq':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\nD=M\n@R1\nD;JEQ\n@R0\n'
+            toWrite = ''
         elif command == 'gt':
             toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\nD=M\n@R1\nD;JGT\n@R0\n'
         elif command == 'lt':
             toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\nD=M\n@R1\nD;JLT\n@R0\n'
         # jump to R0 or R1 if A-D JEQ, JLT, JGT
 
+
+
         elif command == 'and':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M & D\n'
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nA = M - 2\nM = M & D\n@SP\nM = M -1\n'
         elif command == 'or':
-            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M | D\n'
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nA = M - 2\nM = M | D\n@SP\nM = M -1\n'
         elif command == 'not':
             toWrite = '@SP\nA = M - 1\nM = !M\n'
         

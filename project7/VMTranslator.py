@@ -284,7 +284,7 @@ class CodeWrite():
 
             elif segment == 'static':
                 toWrite = """
-                // push {segment}} {i}
+                // push {segment} {i}
                 @{filename}.{i}
                 A = M 
                 D = M
@@ -293,7 +293,7 @@ class CodeWrite():
                 M = D
                 @SP
                 M = M + 1
-                """.format(segment = segment, i= i, filenme = self.fileName)
+                """.format(segment = segment, i= i, filename = self.fileName)
             elif segment == 'temp':
                 toWrite = """
                 // push {segment} {i}
@@ -349,7 +349,7 @@ class CodeWrite():
 
             elif segment == 'static':
                 toWrite = """
-                // pop {segment}} {i}
+                // pop {segment} {i}
                 @SP
                 M = M - 1
                 A = M
@@ -357,7 +357,7 @@ class CodeWrite():
                 @{filename}.{i}
                 M = D
       
-                """.format(segment = segment, i= i, filenme = self.fileName)
+                """.format(segment = segment, i= i, filename = self.fileName)
 
             elif segment == 'temp':
                 toWrite = """
@@ -412,10 +412,10 @@ class Main():
         # File read
         print("Start a VM Translator...")
         #fname = "./SimpleAdd.vm"
-        #fname = "./BasicTest.vm" # fail
-        #fname = "./PointerTest.vm"
-        fname = "./StackTest.vm"
-        #fname = "./StaticTest.vm"
+        fname = "./BasicTest.vm" # fail
+        fname = "./PointerTest.vm"
+        #fname = "./StackTest.vm"
+        fname = "./StaticTest.vm"
         
         commands = Parser(fname)
         writer = CodeWrite(fname)

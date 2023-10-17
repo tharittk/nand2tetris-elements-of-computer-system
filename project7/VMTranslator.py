@@ -145,10 +145,14 @@ class CodeWrite():
             D = M - D
             @EQ_{line_num}
             D;JEQ
+            @SP
+            A = M - 1
             M = 0
             @END_{line_num}
             0;JMP
             (EQ_{line_num})
+            @SP
+            A = M - 1
             M = -1
             (END_{line_num})
             """.format(line_num = line_num)
@@ -165,10 +169,14 @@ class CodeWrite():
             D = M - D
             @GT_{line_num}
             D;JGT
+            @SP
+            A = M - 1
             M = 0
             @END_{line_num}
             0;JMP
             (GT_{line_num})
+            @SP
+            A = M - 1
             M = -1
             (END_{line_num})
             """.format(line_num = line_num)
@@ -185,11 +193,15 @@ class CodeWrite():
             D = M - D
             @LT_{line_num}
             D;JLT
+            @SP
+            A = M - 1
             M = 0
             @SP
             @END_{line_num}
             0;JMP
             (LT_{line_num})
+            @SP
+            A = M - 1
             M = -1
             (END_{line_num})
             """.format(line_num = line_num)        # jump to R0 or R1 if A-D JEQ, JLT, JGT

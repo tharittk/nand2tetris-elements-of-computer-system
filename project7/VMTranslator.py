@@ -96,11 +96,11 @@ class CodeWrite():
 
     # Write to the output file the assembly code of the
     # arithmetic-logical command
-    def writeArithmetic(self, command, *line_num):
+    def writeArithmetic(self, command, line_num):
         toWrite = ''
         # you can tell at the garbarge at | 0  | 1 | > the zero becomes 0+1 while the 1 stays the same with SP points at
         if command == 'add':
-            toWrite = """"
+            toWrite = """
             // add
             @SP
             A = M - 1
@@ -112,7 +112,7 @@ class CodeWrite():
             M = M -1
             """
         elif command == 'sub':
-            toWrite = """"
+            toWrite = """
             // sub
             @SP
             A = M - 1
@@ -133,7 +133,7 @@ class CodeWrite():
 
         # Store value issue
         elif command == 'eq':
-            toWrite = """"
+            toWrite = """
             // eq
             @SP
             A = M - 1
@@ -155,7 +155,7 @@ class CodeWrite():
             (END_{line_num})
             """.format(line_num = line_num)
         elif command == 'gt':
-            toWrite = """"
+            toWrite = """
             // gt
             @SP
             A = M - 1
@@ -177,7 +177,7 @@ class CodeWrite():
             (END_{line_num})
             """.format(line_num = line_num)
         elif command == 'lt':
-            toWrite = """"
+            toWrite = """
             // eq
             @SP
             A = M - 1
@@ -200,7 +200,7 @@ class CodeWrite():
             """.format(line_num = line_num)        # jump to R0 or R1 if A-D JEQ, JLT, JGT
 
         elif command == 'and':
-            toWrite = """"
+            toWrite = """
             // and
             @SP
             A = M - 1
@@ -212,7 +212,7 @@ class CodeWrite():
             M = M -1
             """
         elif command == 'or':
-            toWrite = """"
+            toWrite = """
             // and
             @SP
             A = M - 1
@@ -235,23 +235,22 @@ class CodeWrite():
     
     # Write to the output filethe assembly code of the
     # push or pop command
-    def writePushPop(self, command, segment, i, *line_num):
+    def writePushPop(self, command, segment, i, line_num):
 
         if segment == 'local':
             baseAddr = 'LCL'
         elif segment == 'argument':
             baseAddr = 'ARG'
-        elif segment == 'THIS':
+        elif segment == 'this':
             baseAddr = 'THIS'
-        elif segment == 'THAT':
+        elif segment == 'that':
             baseAddr = 'THAT'    
-        
 
         if command == "C_PUSH":
             if segment == 'constant':
                 toWrite = """
-                // push {segment} 
-                @i
+                // push {segment} {i}
+                @{i}
                 D = A
                 @SP
                 A = M
@@ -293,7 +292,7 @@ class CodeWrite():
                 // push {segment} {i}
                 @5
                 D = A 
-                @i
+                @{i}
                 D = D + A
                 A = D
                 D = M
@@ -339,7 +338,7 @@ class CodeWrite():
                 @addrTemp_{line_num}
                 A = M
                 M = D            
-                """.format(segment = segment, i= i, line_num = line_num)
+                """.format(segment = segment, i= i, line_num = line_num,  baseAddr=baseAddr)
 
             elif segment == 'static':
                 toWrite = """
@@ -391,7 +390,8 @@ class CodeWrite():
 
         else:
             raise ValueError 
-    
+        with open(self.outName, 'a') as f:
+            f.write(toWrite)
     
     # Close the output file
     def close(self):
@@ -404,8 +404,8 @@ class Main():
         
         # File read
         print("Start a VM Translator...")
-        fname = "./SimpleAdd.vm"
-        #fname = "./BasicTest.vm"
+        #fname = "./SimpleAdd.vm"
+        fname = "./BasicTest.vm"
         #fname = "./PointerTest.vm"
         #fname = "./StackTest.vm"
         #fname = "./StaticTest.vm"
@@ -414,29 +414,14 @@ class Main():
         writer = CodeWrite(fname)
 
         while commands.hasMoreLines():
-            # do sth
-            print("Full Command: ", commands.currentCommand, commands.currentCommandIndex)
-            print(commands.commandType())
-            print(commands.arg1())
+            # Write
             if commands.commandType() in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
-                print(commands.arg2())
+                writer.writePushPop(commands.commandType(), commands.arg1(), commands.arg2(), commands.currentCommandIndex)
             elif commands.commandType() == "C_ARITHMETIC":
-                writer.writeArithmetic(commands.arg1())
+                writer.writeArithmetic(commands.arg1(),commands.currentCommandIndex)
             
-            
-
-
-
             # finish the command    
             commands.advance()
-
-        # Construct the parser
-
-        # iteratite through the input file
-
-            # pass each line to parser
-
-            # generate assembly code
 
 if __name__ == "__main__":
     Main()

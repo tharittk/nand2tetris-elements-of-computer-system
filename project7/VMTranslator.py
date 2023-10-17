@@ -1,7 +1,6 @@
 
 # VM Translator
 
-
 # This object parses each VM commands into its lexical elements
 class Parser():
 
@@ -61,6 +60,8 @@ class Parser():
         # FOR NOW
         else:
             return "C_ARITHMETIC"
+        
+        # handle pop 7 ?
     
     # Return first argument of the current command, in case of C_ARITHMATIC (add, etc)
     # the command itself is returned, should not be called if the current command is C_RETURN
@@ -84,15 +85,43 @@ class Parser():
 # This objects takes the parsed command and write the assembly code
 class CodeWrite():
     # Open the output file and gets ready to write into it
-    def __init__(self, Parser):
-        self.Parser = Parser
-        self.outName = "./".join(Parser.vmFile + '.asm')
+    def __init__(self, vmFile):
+
+        # FIX LATER
+        self.outName = vmFile[:-2] + 'asm'
 
 
     # Write to the output file the assembly code of the
     # arithmetic-logical command
-    def writeArithmetic(self):
-        return 0
+    def writeArithmetic(self, command):
+        toWrite = ''
+        # you can tell at the garbarge at | 0  | 1 | > the zero becomes 0+1 while the 1 stays the same with SP points at
+        if command == 'add':
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M + D\n'
+        elif command == 'sub':
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\n'
+        elif command == 'neg':
+            toWrite = '@SP\nA = M - 1\nM = -M\n'
+
+        # Store value issue
+        elif command == 'eq':
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\nD=M\n@R1\nD;JEQ\n@R0\n'
+        elif command == 'gt':
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\nD=M\n@R1\nD;JGT\n@R0\n'
+        elif command == 'lt':
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M - D\nD=M\n@R1\nD;JLT\n@R0\n'
+        # jump to R0 or R1 if A-D JEQ, JLT, JGT
+
+        elif command == 'and':
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M & D\n'
+        elif command == 'or':
+            toWrite = '@SP\nA = M - 1\nD = M\n@SP\nM = M -1\n@SP\nA = M -1\nM = M | D\n'
+        elif command == 'not':
+            toWrite = '@SP\nA = M - 1\nM = !M\n'
+        
+
+        with open(self.outName, 'a') as f:
+            f.write(toWrite)
     
     # Write to the output filethe assembly code of the
     # push or pop command
@@ -121,12 +150,14 @@ class Main():
         # File read
         print("Start a VM Translator...")
         fname = "./SimpleAdd.vm"
-        fname = "./BasicTest.vm"
-        fname = "./PointerTest.vm"
-        fname = "./StackTest.vm"
-        fname = "./StaticTest.vm"
+        #fname = "./BasicTest.vm"
+        #fname = "./PointerTest.vm"
+        #fname = "./StackTest.vm"
+        #fname = "./StaticTest.vm"
         
         commands = Parser(fname)
+        writer = CodeWrite(fname)
+
         while commands.hasMoreLines():
             # do sth
             print("Full Command: ", commands.currentCommand)
@@ -134,6 +165,10 @@ class Main():
             print(commands.arg1())
             if commands.commandType() in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
                 print(commands.arg2())
+            elif commands.commandType() == "C_ARITHMETIC":
+                writer.writeArithmetic(commands.arg1())
+            
+            
 
 
 

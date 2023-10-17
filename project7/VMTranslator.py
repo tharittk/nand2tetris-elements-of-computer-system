@@ -103,25 +103,25 @@ class CodeWrite():
             toWrite = """
             // add
             @SP
-            A = M - 1
+            M = M -1
+            @SP
+            A = M 
             D = M
             @SP
-            A = M - 2
+            A = M - 1
             M = M + D
-            @SP
-            M = M -1
             """
         elif command == 'sub':
             toWrite = """
             // sub
             @SP
-            A = M - 1
+            M = M -1
+            @SP
+            A = M 
             D = M
             @SP
-            A = M - 2
+            A = M - 1
             M = M - D
-            @SP
-            M = M -1
             """
         elif command == 'neg':
             toWrite = """
@@ -136,66 +136,61 @@ class CodeWrite():
             toWrite = """
             // eq
             @SP
-            A = M - 1
+            M = M -1
+            @SP
+            A = M 
             D = M
             @SP
-            A = M - 2
+            A = M - 1
             D = M - D
             @EQ_{line_num}
             D;JEQ
             M = 0
-            @SP
-            M = M - 1
             @END_{line_num}
             0;JMP
             (EQ_{line_num})
             M = -1
-            @SP
-            M = M - 1
             (END_{line_num})
             """.format(line_num = line_num)
         elif command == 'gt':
             toWrite = """
             // gt
             @SP
-            A = M - 1
+            M = M -1
+            @SP
+            A = M 
             D = M
             @SP
-            A = M - 2
+            A = M - 1
             D = M - D
-            @EQ_{line_num}
+            @GT_{line_num}
             D;JGT
             M = 0
-            @SP
-            M = M - 1
             @END_{line_num}
             0;JMP
-            (EQ_{line_num})
+            (GT_{line_num})
             M = -1
-            @SP
-            M = M - 1
             (END_{line_num})
             """.format(line_num = line_num)
         elif command == 'lt':
             toWrite = """
-            // eq
+            // lt
             @SP
-            A = M - 1
+            M = M -1
+            @SP
+            A = M 
             D = M
             @SP
-            A = M - 2
+            A = M - 1
             D = M - D
-            @EQ_{line_num}
+            @LT_{line_num}
             D;JLT
             M = 0
             @SP
-            M = M - 1
             @END_{line_num}
             0;JMP
-            (EQ_{line_num})
+            (LT_{line_num})
             M = -1
-            @SP
-            M = M - 1
             (END_{line_num})
             """.format(line_num = line_num)        # jump to R0 or R1 if A-D JEQ, JLT, JGT
 
@@ -203,25 +198,25 @@ class CodeWrite():
             toWrite = """
             // and
             @SP
-            A = M - 1
+            M = M -1
+            @SP
+            A = M 
             D = M
             @SP
-            A = M - 2
+            A = M - 1
             M = M & D
-            @SP
-            M = M -1
             """
         elif command == 'or':
             toWrite = """
-            // and
-            @SP
-            A = M - 1
-            D = M
-            @SP
-            A = M - 2
-            M = M | D
+            // or
             @SP
             M = M -1
+            @SP
+            A = M 
+            D = M
+            @SP
+            A = M - 1
+            M = M | D
             """        
         elif command == 'not':
             toWrite = """
@@ -330,7 +325,7 @@ class CodeWrite():
                 @{baseAddr}
                 D = D + A
                 @addrTemp_{line_num}
-                M = D
+                M = D 
                 @SP
                 M = M - 1
                 A = M
@@ -405,9 +400,9 @@ class Main():
         # File read
         print("Start a VM Translator...")
         #fname = "./SimpleAdd.vm"
-        fname = "./BasicTest.vm"
+        #fname = "./BasicTest.vm" # fail
         #fname = "./PointerTest.vm"
-        #fname = "./StackTest.vm"
+        fname = "./StackTest.vm"
         #fname = "./StaticTest.vm"
         
         commands = Parser(fname)

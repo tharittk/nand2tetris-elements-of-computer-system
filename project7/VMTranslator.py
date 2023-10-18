@@ -286,8 +286,7 @@ class CodeWrite():
             elif segment == 'static':
                 toWrite = """
                 // push {segment} {i}
-                @{filename}.{i}
-                A = M 
+                @{filename}.{i} 
                 D = M
                 @SP
                 A = M 

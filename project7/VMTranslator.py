@@ -409,13 +409,13 @@ class Main():
     def __init__(self):
         
         # File read
-        print("Start a VM Translator...")
+        #print("Start a VM Translator...")
         #fname = "./SimpleAdd.vm"
         #fname = "./BasicTest.vm" # fail
         #fname = "./PointerTest.vm"
         #fname = "./StackTest.vm"
-        fname = "./StaticTest.vm"
-        
+        #fname = "./StaticTest.vm"
+        fname = os.path.basename(sys.argv[1])
         commands = Parser(fname)
         writer = CodeWrite(fname)
 
@@ -430,4 +430,7 @@ class Main():
             commands.advance()
 
 if __name__ == "__main__":
+    import sys
+    import os
+
     Main()

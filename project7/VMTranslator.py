@@ -88,7 +88,9 @@ class CodeWrite():
     def __init__(self, vmFile):
 
         # FIX LATER
-        self.fileName = vmFile[2:-3]
+        #self.fileName = vmFile[2:-3]
+        self.fileName = vmFile.split('/')[-1][:-3]
+
         self.outName = vmFile[:-2] + 'asm'
         self.staticBaseAddr = 16
         self.tempBaseAddr = 5
@@ -399,10 +401,6 @@ class CodeWrite():
         with open(self.outName, 'a') as f:
             f.write(toWrite)
     
-    # Close the output file
-    def close(self):
-        return 0
-
 
 # Drive the process
 class Main():
@@ -411,11 +409,12 @@ class Main():
         # File read
         #print("Start a VM Translator...")
         #fname = "./SimpleAdd.vm"
-        #fname = "./BasicTest.vm" # fail
+        #fname = "./BasicTest.vm"
         #fname = "./PointerTest.vm"
         #fname = "./StackTest.vm"
-        #fname = "./StaticTest.vm"
-        fname = os.path.basename(sys.argv[1])
+        #fname = "./MemoryAccess/StaticTest/StaticTest.vm"
+        #fname = os.path.basename(sys.argv[1])
+        fname = sys.argv[1]
         commands = Parser(fname)
         writer = CodeWrite(fname)
 
@@ -431,6 +430,4 @@ class Main():
 
 if __name__ == "__main__":
     import sys
-    import os
-
     Main()

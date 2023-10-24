@@ -1,21 +1,23 @@
 
 # Code writer subroutine for VM translator
 
-
+import os
 
 # This objects takes the parsed command and write the assembly code
 class CodeWrite():
     # Open the output file and gets ready to write into it
-    def __init__(self, vmFile):
+    def __init__(self, vmFile, bootStrap = False):
 
-        # FIX LATER
-        #self.fileName = vmFile[2:-3]
+
         self.fileName = vmFile.split('/')[-1][:-3]
-        self.outName = vmFile[:-2] + 'asm'
+
+        #self.outName = vmFile[:-2] + 'asm'
+        self.outName = (os.path.dirname(vmFile)+ '/' +  vmFile.split('/')[-2] + '.asm')
         self.staticBaseAddr = 16
         self.tempBaseAddr = 5
         # bootstrap here
-        self._bootstrap()
+        if bootStrap:
+            self._bootstrap()
     
 
     def _bootstrap(self):

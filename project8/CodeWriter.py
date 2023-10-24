@@ -28,10 +28,12 @@ class CodeWrite():
             D = A
             @SP
             M = D
-            @Sys.init
-            0;JMP
             '''
             f.write(toWrite)
+            
+        self.writeCall('Sys.init', 1 , 0)
+
+
     
     def setFileName(self, newVmFile):
         self.fileName = newVmFile.split('/')[-1][:-3]
@@ -404,7 +406,7 @@ class CodeWrite():
 
     def writeCall(self, functionName, nArgs, i):
         toWrite = '''
-        // Call function
+        // Call function with nArg = {nArgs}
         // save frame of the caller
         // push retAddrLabel
         @{functionName}$ret.{i}
@@ -416,7 +418,7 @@ class CodeWrite():
         M = M + 1
         // push LCL
         @LCL
-        D = A
+        D = M
         @SP
         A = M
         M = D
@@ -424,7 +426,7 @@ class CodeWrite():
         M = M + 1
         // push ARG
         @ARG
-        D = A
+        D = M
         @SP
         A = M
         M = D
@@ -432,7 +434,7 @@ class CodeWrite():
         M = M + 1
         // push THIS
         @THIS
-        D = A
+        D = M
         @SP
         A = M
         M = D
@@ -440,7 +442,7 @@ class CodeWrite():
         M = M + 1
         // push THAT
         @THAT
-        D = A
+        D = M
         @SP
         A = M
         M = D
@@ -454,6 +456,8 @@ class CodeWrite():
         D = D - 1
         D = D - 1
         D = D - 1
+
+        //nArgs
         @{nArgs}
         D = D - A
         @ARG

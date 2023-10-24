@@ -330,3 +330,46 @@ class CodeWrite():
         with open(self.outName, 'a') as f:
             f.write(toWrite)
     
+
+
+
+    # write label
+    def writeLabel(self, label):
+
+        # code 
+        with open(self.outName, 'a') as f:
+            f.write("")
+
+    # write Goto
+    def writeGoto(self, label):
+
+        # code 
+        with open(self.outName, 'a') as f:
+            f.write("")
+    
+    # write if
+    def writeIf(self, label):
+
+        # code 
+        with open(self.outName, 'a') as f:
+            f.write("")
+    
+
+    # write Function
+    def writeFunction(self, functionName, nVars):
+
+        # code 
+        with open(self.outName, 'a') as f:
+            f.write("")
+
+    def writeCall(self, functionName, nArgs):
+
+        # code 
+        with open(self.outName, 'a') as f:
+            f.write("")
+            
+    def writeReturn(self):
+
+        # code 
+        with open(self.outName, 'a') as f:
+            f.write("")

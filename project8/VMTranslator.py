@@ -8,7 +8,9 @@ class Main():
         
         # File read
 
-        fname = sys.argv[1]
+        fname = './ProgramFlow/BasicLoop/BasicLoop.vm'
+        
+        #fname = sys.argv[1]
         commands = Parser(fname)
         writer = CodeWrite(fname)
 

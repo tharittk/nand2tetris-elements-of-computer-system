@@ -335,24 +335,37 @@ class CodeWrite():
 
     # write label
     def writeLabel(self, label):
-
-        # code 
+        toWrite = '''
+            // label
+            ({label})
+        '''.format(label=label)
         with open(self.outName, 'a') as f:
-            f.write("")
+            f.write(toWrite)
 
     # write Goto
     def writeGoto(self, label):
-
-        # code 
+        toWrite = '''
+            // go to label
+            @{label}
+            0; JMP
+        '''.format(label=label)
         with open(self.outName, 'a') as f:
-            f.write("")
+            f.write(toWrite)
     
     # write if
     def writeIf(self, label):
-
-        # code 
+        toWrite = '''
+            // if-goto label
+            @SP
+            A = M -1
+            D = M
+            @SP
+            M = M - 1
+            @{label}
+            D; JNE
+        '''.format(label=label)
         with open(self.outName, 'a') as f:
-            f.write("")
+            f.write(toWrite)
     
 
     # write Function
@@ -367,7 +380,7 @@ class CodeWrite():
         # code 
         with open(self.outName, 'a') as f:
             f.write("")
-            
+
     def writeReturn(self):
 
         # code 

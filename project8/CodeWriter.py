@@ -30,7 +30,7 @@ class CodeWrite():
             M = D
             '''
             f.write(toWrite)
-            
+
         self.writeCall('Sys.init', 1 , 0)
 
 
@@ -451,13 +451,8 @@ class CodeWrite():
         // reposition ARG = SP -5 - nArgs
         @SP
         D = M
-        D = D - 1
-        D = D - 1
-        D = D - 1
-        D = D - 1
-        D = D - 1
-
-        //nArgs
+        @5
+        D = D - A
         @{nArgs}
         D = D - A
         @ARG
@@ -495,7 +490,6 @@ class CodeWrite():
         @SP
         M = D + 1
         // Reinstate the frame
-        @9988
         @D
         // THAT = endframe -1
         @LCL

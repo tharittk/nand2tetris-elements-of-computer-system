@@ -8,8 +8,11 @@ class Main():
         
         # File read
 
-        fname = './ProgramFlow/BasicLoop/BasicLoop.vm'
-        
+        #fname = './ProgramFlow/FibonacciSeries/FibonacciSeries.vm'
+        #fname = './FunctionCalls/SimpleFunction/SimpleFunction.vm'
+        #fname = './FunctionCalls/NestedCall/Sys.vm'
+        fname = './FunctionCalls/NestedCall/NestedCall.vm'
+
         #fname = sys.argv[1]
         commands = Parser(fname)
         writer = CodeWrite(fname)
@@ -31,7 +34,7 @@ class Main():
             elif cmdType == 'C_FUNCTION':
                 writer.writeFunction(commands.arg1(), commands.arg2())
             elif cmdType == 'C_CALL':
-                writer.writeCall(commands.arg1(), commands.arg2())
+                writer.writeCall(commands.arg1(), commands.arg2(),commands.currentCommandIndex)
             elif cmdType == 'C_RETURN':
                 writer.writeReturn()
             # finish the command    

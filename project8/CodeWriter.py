@@ -331,8 +331,6 @@ class CodeWrite():
             f.write(toWrite)
     
 
-
-
     # write label
     def writeLabel(self, label):
         toWrite = '''
@@ -351,7 +349,6 @@ class CodeWrite():
         '''.format(label=label)
         with open(self.outName, 'a') as f:
             f.write(toWrite)
-    
     # write if
     def writeIf(self, label):
         toWrite = '''
@@ -370,19 +367,193 @@ class CodeWrite():
 
     # write Function
     def writeFunction(self, functionName, nVars):
-
-        # code 
+        tmp1 ='''
+        // function
+        ({functionName}) 
+        '''.format(functionName = functionName)
+        
+        tmp2 = ''
+        # push local 0 nVars times
+        for i in range(nVars):
+            tmp2 += '''
+                // push local 0 nVars times {i} of {nVars}
+                @0
+                D = A
+                @SP
+                A = M 
+                M = D
+                @SP
+                M = M + 1 \n
+            '''.format(i = i+1, nVars = nVars)
+        
+        toWrite = tmp1 + tmp2
         with open(self.outName, 'a') as f:
-            f.write("")
+            f.write(toWrite)
 
-    def writeCall(self, functionName, nArgs):
-
-        # code 
+    def writeCall(self, functionName, nArgs, i):
+        toWrite = '''
+        // Call function
+        // save frame of the caller
+        // push retAddrLabel
+        @{functionName}$ret.{i}
+        D = A
+        @SP
+        A = M
+        M = D
+        @SP
+        M = M + 1
+        // push LCL
+        @LCL
+        D = A
+        @SP
+        A = M
+        M = D
+        @SP
+        M = M + 1
+        // push ARG
+        @ARG
+        D = A
+        @SP
+        A = M
+        M = D
+        @SP
+        M = M + 1
+        // push THIS
+        @THIS
+        D = A
+        @SP
+        A = M
+        M = D
+        @SP
+        M = M + 1
+        // push THAT
+        @THAT
+        D = A
+        @SP
+        A = M
+        M = D
+        @SP
+        M = M + 1
+        // reposition ARG = SP -5 - nArgs
+        @SP
+        D = M
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        @{nArgs}
+        D = D - A
+        @ARG
+        M = D
+        // reposition LCL = SP
+        @SP
+        D = M
+        @LCL
+        M = D
+        // goto functionName
+        @{functionName}
+        0;JMP
+        // inject return address 
+        ({functionName}$ret.{i})
+        '''.format(functionName = functionName, i = i, nArgs = nArgs)
+        
         with open(self.outName, 'a') as f:
-            f.write("")
+            f.write(toWrite)
 
     def writeReturn(self):
 
-        # code 
+        toWrite ='''
+        // Return
+
+        // Replace first Arg with latested pushed value
+        @SP
+        A = M - 1
+        D = M
+        @ARG
+        A = M
+        M = D
+        // Recycle memomey (move SP)
+        @ARG
+        D = M
+        @SP
+        M = D + 1
+        // Reinstate the frame
+        @9988
+        @D
+        // THAT = endframe -1
+        @LCL
+        D = M
+        D = D -1
+        A = D
+        D = M
+        @THAT
+        M = D
+        
+        // THIS = endframe - 2
+        @LCL
+        D = M
+        D = D - 1
+        D = D - 1
+        A = D
+        D = M
+        @THIS
+        M = D
+
+        // ARG = endframe - 3
+        @LCL
+        D = M
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        A = D
+        D = M
+        @ARG
+        M = D
+        
+        // save at SP for retAddr use
+        @LCL
+        D = M
+        @SP
+        A = M
+        M = D
+
+        // LCL = endframe - 4
+        @LCL
+        D = M
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        A = D
+        D = M
+        @LCL
+        M = D
+
+
+        // retAddr = endframe - 5
+        @SP
+        A = M
+        D = M
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        D = D - 1
+        A = D
+        D = M
+        
+        //@retAddr
+        //M = D
+        //@retAddr
+        //A = M 
+        //0;JMP
+
+        //@D won't work
+        A = D
+        0;JMP
+
+
+        '''
         with open(self.outName, 'a') as f:
-            f.write("")
+            f.write(toWrite)

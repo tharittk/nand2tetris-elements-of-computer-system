@@ -9,9 +9,8 @@ class Main():
         # File read
 
         #fname = './ProgramFlow/FibonacciSeries/FibonacciSeries.vm'
-        #fname = './FunctionCalls/SimpleFunction/SimpleFunction.vm'
-        #fname = './FunctionCalls/NestedCall/Sys.vm'
-        fname = './FunctionCalls/NestedCall/NestedCall.vm'
+        fname = './FunctionCalls/SimpleFunction/SimpleFunction.vm'
+        #fname = './FunctionCalls/NestedCall/NestedCall.vm'
 
         #fname = sys.argv[1]
         commands = Parser(fname)

@@ -17,9 +17,19 @@ class CodeWrite():
         # bootstrap here
         self._bootstrap()
     
+
     def _bootstrap(self):
         with open(self.outName, 'a') as f:
-            f.write("//bootstrap here")
+            toWrite = '''
+            //Bootstrap
+            @256
+            D = A
+            @SP
+            M = D
+            @Sys.init
+            0;JMP
+            '''
+            f.write(toWrite)
     
     def setFileName(self, newVmFile):
         self.fileName = newVmFile.split('/')[-1][:-3]

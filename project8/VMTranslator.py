@@ -11,11 +11,11 @@ class Main():
         #fname = './ProgramFlow/FibonacciSeries/FibonacciSeries.vm'
         
         #fname = './FunctionCalls/SimpleFunction/SimpleFunction.vm'
-        fname = './FunctionCalls/NestedCall/'
+        #fname = './FunctionCalls/NestedCall/'
         #fname = './FunctionCalls/FibonacciElement/'
         #fname = './FunctionCalls/StaticsTest/'
 
-        #fname = sys.argv[1]
+        fname = sys.argv[1]
 
         # Handle single file
         if not os.path.isdir(fname):
@@ -54,7 +54,7 @@ class Main():
                 if file[-3:] == '.vm':
                     vmFiles.append(fname + file)
         
-            bootStrap = False
+            bootStrap = True
             for vmFile in vmFiles:
                 
                 commands = Parser(vmFile)

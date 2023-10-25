@@ -54,7 +54,7 @@ class Main():
                 if file[-3:] == '.vm':
                     vmFiles.append(fname + file)
         
-            bootStrap = True
+            bootStrap = False
             for vmFile in vmFiles:
                 
                 commands = Parser(vmFile)

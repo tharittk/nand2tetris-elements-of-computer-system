@@ -477,90 +477,81 @@ class CodeWrite():
         toWrite ='''
         // Return
 
+        // Store endframe
+        @LCL
+        D = M
+        @endFrame
+        M = D
+
+        // store return addres
+        @endFrame
+        D = M
+        @5
+        D = D - A
+        A = D
+        D = M
+        @retAddr_tmp
+        M = D
+        
         // Replace first Arg with latested pushed value
         @SP
-        A = M - 1
+        M = M - 1
+        A = M
         D = M
         @ARG
         A = M
         M = D
-        // Recycle memomey (move SP)
+        // SP = ARG + 1
         @ARG
-        D = M
+        D = M + 1
         @SP
-        M = D + 1
+        M = D
+
+
         // Reinstate the frame
-        @D
         // THAT = endframe -1
-        @LCL
+        @endFrame
         D = M
-        D = D -1
+        @1
+        D = D -A
         A = D
         D = M
         @THAT
         M = D
         
         // THIS = endframe - 2
-        @LCL
+        @endFrame
         D = M
-        D = D - 1
-        D = D - 1
+        @2
+        D = D - A
         A = D
         D = M
         @THIS
         M = D
 
         // ARG = endframe - 3
-        @LCL
+        @endFrame
         D = M
-        D = D - 1
-        D = D - 1
-        D = D - 1
+        @3
+        D = D -A
         A = D
         D = M
         @ARG
         M = D
-        
-        // save at SP for retAddr use
-        @LCL
-        D = M
-        @SP
-        A = M
-        M = D
 
         // LCL = endframe - 4
-        @LCL
+        @endFrame
         D = M
-        D = D - 1
-        D = D - 1
-        D = D - 1
-        D = D - 1
+        @4
+        D = D -A
         A = D
         D = M
         @LCL
         M = D
 
-
-        // retAddr = endframe - 5
-        @SP
+        // jump to return address
+        @retAddr_tmp
         A = M
-        D = M
-        D = D - 1
-        D = D - 1
-        D = D - 1
-        D = D - 1
-        D = D - 1
-        A = D
-        D = M
-        
-        //@retAddr
-        //M = D
-        //@retAddr
-        //A = M 
-        //0;JMP
-
-        //@D won't work
-        A = D
         0;JMP
 
 

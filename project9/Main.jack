@@ -1,0 +1,16 @@
+
+/**
+ * The main class of the Balloon game.
+ */
+class Main {
+
+    /** Initializes a Balloon game and starts running it. */
+    function void main() {
+        var BalloonGame game;
+        do BalloonGame.newInstance();
+        let game = BalloonGame.getInstance();
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}

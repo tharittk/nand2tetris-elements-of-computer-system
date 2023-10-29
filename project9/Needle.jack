@@ -9,10 +9,10 @@ class Needle {
 
     field int x, y;           // the needle's screen location
     field int loc;
-    field boolean isFilled;      // direction of the bat's movement (1 = left, 2 = right)
-
+    field boolean isFilled;  
+    field int memAddress;
     /** Constructs a new bat with the given location and width. */
-    constructor Needle new(int x, int y, boolean isFilled) {
+    constructor Needle new(int Ax, int Ay) {
         let x = Ax;
         let y = Ay;
         let isFilled = false;
@@ -31,42 +31,48 @@ class Needle {
     /** Shows the needle. */
     method void show() {
         do Screen.setColor(true);
-        if(isFilled = true) 
-            {do drawNeedleFilled();}
-        else
-            {do drawNeedleEmpty()}
+        do drawNeedle();
         return;
     }
 
     /** Hides the needle. */
     method void hide() {
         do Screen.setColor(false);
-        do drawNeedleFilled();
+        do drawNeedle();
         return;
     }
 
-    method void drawNeedleEmpty() {
+    method boolean getIsFilled(){
+        return isFilled;
+    }
+
+    method void reverseIsFilled(){
+        let isFilled = ~isFilled;
+        return;
+    }
+
+    method void drawNeedle() {
         let memAddress = 16384+loc;
-        do Memory.poke(memAddress+0, 256);
-        do Memory.poke(memAddress+32, 256);
-        do Memory.poke(memAddress+64, 896);
-        do Memory.poke(memAddress+96, 1088);
-        do Memory.poke(memAddress+128, 1088);
-        do Memory.poke(memAddress+160, 1088);
-        do Memory.poke(memAddress+192, 3168);
-        do Memory.poke(memAddress+224, 6192);
-        do Memory.poke(memAddress+256, 4112);
-        do Memory.poke(memAddress+288, 4112);
-        do Memory.poke(memAddress+320, 4112);
-        do Memory.poke(memAddress+352, 4112);
-        do Memory.poke(memAddress+384, 4112);
-        do Memory.poke(memAddress+416, 4112);
-        do Memory.poke(memAddress+448, -1);
-        do Memory.poke(memAddress+480, -1);
-        return;
-    }
+        if (~isFilled){
+            do Memory.poke(memAddress+0, 256);
+            do Memory.poke(memAddress+32, 256);
+            do Memory.poke(memAddress+64, 896);
+            do Memory.poke(memAddress+96, 1088);
+            do Memory.poke(memAddress+128, 1088);
+            do Memory.poke(memAddress+160, 1088);
+            do Memory.poke(memAddress+192, 3168);
+            do Memory.poke(memAddress+224, 6192);
+            do Memory.poke(memAddress+256, 4112);
+            do Memory.poke(memAddress+288, 4112);
+            do Memory.poke(memAddress+320, 4112);
+            do Memory.poke(memAddress+352, 4112);
+            do Memory.poke(memAddress+384, 4112);
+            do Memory.poke(memAddress+416, 4112);
+            do Memory.poke(memAddress+448, -1);
+            do Memory.poke(memAddress+480, -1);
+        }
+        else{
 
-    method void drawNeedleFilled() {
         let memAddress = 16384+loc;
         do Memory.poke(memAddress+0, 256);
         do Memory.poke(memAddress+32, 256);
@@ -84,7 +90,8 @@ class Needle {
         do Memory.poke(memAddress+416, 8176);
         do Memory.poke(memAddress+448, -1);
         do Memory.poke(memAddress+480, -1);
-        return;
+        }
+    return;
     }
 
 }

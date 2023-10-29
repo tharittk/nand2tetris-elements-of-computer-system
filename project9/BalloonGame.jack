@@ -1,0 +1,85 @@
+
+/**
+ * Represents a Balloon game.
+ */
+class BalloonGame {
+
+    static BalloonGame instance; // the singelton, a Pong game instance     
+    field Needle needle;            // the needle
+    //field Balloon balloon;          // the balloon
+    field boolean exit;       // true when the game is over
+    field int score;          // the current score.
+
+    /** Constructs a new Balloon game. */
+    constructor BalloonGame new() {
+	    do Screen.clearScreen();
+        let needle = Needle.new (256,220);
+        //let balloon = Balloon.new();
+        do Screen.drawRectangle(0, 238, 511, 240);
+	    do Output.moveCursor(22,0);
+	    do Output.printString("Score: 0");
+	
+	    let exit = false;
+	    let score = 0;
+        return this;
+    }
+
+    /** Deallocates the object's memory. */
+    method void dispose() {
+        do needle.dispose();
+	    do balloon.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Creates an instance of Ballon game, and stores it. */
+    function void newInstance() {
+        let instance = BalloonGame.new();
+        return;
+    }
+    
+    /** Returns the single instance of this Pong game. */
+    function Balloon getInstance() {
+        return instance;
+    }
+
+    /** Starts the game, control the user's pace */
+
+    method void run() {
+        var char key;
+
+        while (~exit) {
+            // waits for a key to be pressed.
+            while ((key = 0) & (~exit)) {
+                let key = Keyboard.keyPressed();
+                // do balloon actions
+            }
+
+            if (key = 32) { 
+                    do needle.drawNeedle();
+                    do needle.reverseIsFilled();
+             }
+
+            // terminate program
+		    else {
+                if (key = 140) { let exit = true; }
+		        }
+            
+
+            // Waits for the key to be released.
+            while ((~(key = 0)) & (~exit)) {
+                let key = Keyboard.keyPressed();
+                // do balloon actions
+            }
+        }
+
+	    if (exit) {
+            do Output.moveCursor(10,27);
+	        do Output.printString("Bye !");
+	    }
+            
+        return;
+    }
+
+
+}

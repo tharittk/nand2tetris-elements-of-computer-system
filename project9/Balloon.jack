@@ -52,15 +52,33 @@ class Balloon {
     method int getPressure(){
         return pressure;
     }
+    
+    method int getX(){
+        return x;
+    }
+
+    method int getY(){
+        return y;
+    }
+
     method int getRadius(){
         return r;
     }
+
+    method int getIsReleased(){
+        return isReleased;
+    }
+
     /** Draws the balloon. */
     method void drawBalloon() {
 	    do Screen.drawCircle(x, y, r);
 	    return;
     }
 
+    method void setPressure(int x){
+        let pressure = x;
+        return;
+    }
     method void addPressure (){
         let pressure = pressure + 1;
         return ;
@@ -87,6 +105,7 @@ class Balloon {
             }
             //pop balloon
             else{
+                do hide();
                 do fireWorkMotion(x, y);
             }
         }
@@ -98,7 +117,7 @@ class Balloon {
     method void fireWorkMotion(int x, int y){
         do hide();
         do drawFireWork(x, y);
-        do Sys.wait(1000);
+        do Sys.wait(2000);
         do hide();
 
         return;

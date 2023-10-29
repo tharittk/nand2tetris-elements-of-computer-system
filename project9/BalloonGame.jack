@@ -9,16 +9,25 @@ class BalloonGame {
     field Balloon balloon;          // the balloon
     field boolean exit;       // true when the game is over
     field int score;          // the current score.
+    field int memAddress;
 
     /** Constructs a new Balloon game. */
     constructor BalloonGame new() {
 	    do Screen.clearScreen();
         let needle = Needle.new (256,220);
-        let balloon = Balloon.new(264,190, 3);
+        let balloon = Balloon.new(264,150, 3);
         do Screen.drawRectangle(0, 238, 511, 240);
 	    do Output.moveCursor(22,0);
 	    do Output.printString("Score: 0");
 	
+	    do Output.moveCursor(1,2);
+	    do Output.printString("Press SPACE_BAR to Pump");
+	
+        do Output.moveCursor(2,2);
+	    do Output.printString("Press R to Release");
+
+        do Output.moveCursor(3,2);
+	    do Output.printString("Press D to Reduce Pressure");
 	    let exit = false;
 	    let score = 0;
         return this;
@@ -32,7 +41,7 @@ class BalloonGame {
         return;
     }
 
-    /** Creates an instance of Ballon game, and stores it. */
+    /** Creates an instance of Balloon game, and stores it. */
     function void newInstance() {
         let instance = BalloonGame.new();
         return;
@@ -47,14 +56,18 @@ class BalloonGame {
 
     method void run() {
         var char key;
+        var int pressure;
+        var boolean isOverPressure;
+        do drawGaugeArrow(470, 150);
 
         while (~exit) {
             // waits for a key to be pressed.
             while ((key = 0) & (~exit)) {
                 let key = Keyboard.keyPressed();
-                // do balloon actions
                 do balloon.moveBalloon();
                 do Sys.wait(50);
+                let pressure = balloon.getPressure();
+                do drawPressureGauge(pressure);
 
             }
 
@@ -62,11 +75,17 @@ class BalloonGame {
             if (key = 32) { 
                     do needle.drawNeedle();
                     do needle.reverseIsFilled();
+
                     if (needle.getIsFilled()){ // pump air in
-                        do balloon.growInSize();
-                        //do Output.moveCursor(22,7);
-                        //let score = balloon.getPressure();
-                        //do Output.printInt(score);
+
+                        if (~balloon.getIsReleased()) {
+                            do balloon.growInSize();
+                            do Output.moveCursor(22,7);
+                            let score = balloon.getRadius();
+                            do Output.printInt(score);
+                            let pressure = balloon.getPressure();
+                            do drawPressureGauge(pressure);
+                        }
                     }
             }
              
@@ -74,32 +93,95 @@ class BalloonGame {
             if (key = 82) { 
                 do balloon.setRealease();
                 let score = score + balloon.getRadius();
+                do balloon.setPressure(0);
+                do drawPressureGauge(0);
+            }
+            //reduce pressure
+            if (key = 68) { 
+                let pressure = balloon.getPressure();
+                do balloon.setPressure(pressure - 1);
+                let pressure = balloon.getPressure();
+                do drawPressureGauge(pressure);
             }
 
-            // balloon pop
-
             // terminate program
-		    else {
-                if (key = 140) { let exit = true; }
-		        }
-            
+            if (key = 140) { let exit = true; }
+		    
+            //pressure condition
+            if ((10 * (pressure + 1) ) > 60) {
+                do balloon.hide();
+                do balloon.drawFireWork(balloon.getX(), balloon.getY());
+                do Output.moveCursor(10,27);
+                let isOverPressure = true; 
+                let exit = true;
+            }
 
             // Waits for the key to be released.
             while ((~(key = 0)) & (~exit)) {
                 let key = Keyboard.keyPressed();
                 do balloon.moveBalloon();
                 do Sys.wait(50);
-
+                let pressure = balloon.getPressure();
+                do drawPressureGauge(pressure);
             }
         }
 
 	    if (exit) {
             do Output.moveCursor(10,27);
+
+            if (isOverPressure){
+	            do Output.printString("OVERPRESSURE !");
+            }
+            else{
 	        do Output.printString("Bye !");
+            }
 	    }
             
         return;
     }
 
+    method void drawPressureGauge(int pressure){
+        var int i, pressure, height;
+        let i = 1;
+        let height = 10;
+        do Screen.setColor(true);
 
+        //fill right edge of screen
+        do Screen.drawRectangle(490, 5, 511, 239);
+
+        while (i < pressure){
+            do Screen.setColor(false);
+            do Screen.drawRectangle(495, height + 10*(i+1) - 7, 505, (height) + 10*(i + 2) - 7);
+            do Screen.setColor(true);
+            do Screen.drawRectangle(495, (height) + 10*(i+1) -7, 505, (height) + 10*(i+1) - 7);
+            let i = i + 1;          
+        }
+
+    return;
+    }
+
+
+
+method void drawGaugeArrow(int x, int y) {
+    var int loc;
+    let loc = (y * 32) + (x / 16);
+	let memAddress = 16384 + loc;
+	do Memory.poke(memAddress+0, 0);
+	do Memory.poke(memAddress+32, 0);
+	do Memory.poke(memAddress+64, 0);
+	do Memory.poke(memAddress+96, 1024);
+	do Memory.poke(memAddress+128, 3072);
+	do Memory.poke(memAddress+160, 16383);
+	do Memory.poke(memAddress+192, 32767);
+	do Memory.poke(memAddress+224, -16383);
+	do Memory.poke(memAddress+256, 32767);
+	do Memory.poke(memAddress+288, 8191);
+	do Memory.poke(memAddress+320, 3072);
+	do Memory.poke(memAddress+352, 1024);
+	do Memory.poke(memAddress+384, 0);
+	do Memory.poke(memAddress+416, 0);
+	do Memory.poke(memAddress+448, 0);
+	do Memory.poke(memAddress+480, 0);
+	return;
+}
 }

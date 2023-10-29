@@ -61,10 +61,25 @@ push argument 0
 pop pointer 0
 push this 4
 return
+function Balloon.getX 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Balloon.getY 0
+push argument 0
+pop pointer 0
+push this 1
+return
 function Balloon.getRadius 0
 push argument 0
 pop pointer 0
 push this 3
+return
+function Balloon.getIsReleased 0
+push argument 0
+pop pointer 0
+push this 5
 return
 function Balloon.drawBalloon 0
 push argument 0
@@ -74,6 +89,13 @@ push this 1
 push this 3
 call Screen.drawCircle 3
 pop temp 0
+push constant 0
+return
+function Balloon.setPressure 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 4
 push constant 0
 return
 function Balloon.addPressure 0
@@ -143,6 +165,9 @@ pop temp 0
 goto IF_END1
 label IF_FALSE1
 push pointer 0
+call Balloon.hide 1
+pop temp 0
+push pointer 0
 push this 0
 push this 1
 call Balloon.fireWorkMotion 3
@@ -157,15 +182,12 @@ pop pointer 0
 push pointer 0
 call Balloon.hide 1
 pop temp 0
-push constant 400
-call Sys.wait 1
-pop temp 0
 push pointer 0
 push argument 1
 push argument 2
 call Balloon.drawFireWork 3
 pop temp 0
-push constant 400
+push constant 2000
 call Sys.wait 1
 pop temp 0
 push pointer 0

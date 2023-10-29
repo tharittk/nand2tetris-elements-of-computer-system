@@ -1,0 +1,90 @@
+
+/**
+ * A graphical Needle bat. 
+    Display a 16x16 needle that inject the air to the balloon
+    The needle has a specidied shape based on predefined sprite
+    Has method of drawing filled and empty needle for animating purpose
+ */
+class Needle {
+
+    field int x, y;           // the needle's screen location
+    field int loc;
+    field boolean isFilled;      // direction of the bat's movement (1 = left, 2 = right)
+
+    /** Constructs a new bat with the given location and width. */
+    constructor Needle new(int x, int y, boolean isFilled) {
+        let x = Ax;
+        let y = Ay;
+        let isFilled = false;
+        let loc =  (y * 32) + (x / 16); // memory map offset
+        do show();
+        return this;
+    }
+
+    /** Deallocates the object's memory. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+
+    /** Shows the needle. */
+    method void show() {
+        do Screen.setColor(true);
+        if(isFilled = true) 
+            {do drawNeedleFilled();}
+        else
+            {do drawNeedleEmpty()}
+        return;
+    }
+
+    /** Hides the needle. */
+    method void hide() {
+        do Screen.setColor(false);
+        do drawNeedleFilled();
+        return;
+    }
+
+    method void drawNeedleEmpty() {
+        let memAddress = 16384+loc;
+        do Memory.poke(memAddress+0, 256);
+        do Memory.poke(memAddress+32, 256);
+        do Memory.poke(memAddress+64, 896);
+        do Memory.poke(memAddress+96, 1088);
+        do Memory.poke(memAddress+128, 1088);
+        do Memory.poke(memAddress+160, 1088);
+        do Memory.poke(memAddress+192, 3168);
+        do Memory.poke(memAddress+224, 6192);
+        do Memory.poke(memAddress+256, 4112);
+        do Memory.poke(memAddress+288, 4112);
+        do Memory.poke(memAddress+320, 4112);
+        do Memory.poke(memAddress+352, 4112);
+        do Memory.poke(memAddress+384, 4112);
+        do Memory.poke(memAddress+416, 4112);
+        do Memory.poke(memAddress+448, -1);
+        do Memory.poke(memAddress+480, -1);
+        return;
+    }
+
+    method void drawNeedleFilled() {
+        let memAddress = 16384+loc;
+        do Memory.poke(memAddress+0, 256);
+        do Memory.poke(memAddress+32, 256);
+        do Memory.poke(memAddress+64, 896);
+        do Memory.poke(memAddress+96, 1984);
+        do Memory.poke(memAddress+128, 1984);
+        do Memory.poke(memAddress+160, 1984);
+        do Memory.poke(memAddress+192, 4064);
+        do Memory.poke(memAddress+224, 8176);
+        do Memory.poke(memAddress+256, 8176);
+        do Memory.poke(memAddress+288, 8176);
+        do Memory.poke(memAddress+320, 8176);
+        do Memory.poke(memAddress+352, 8176);
+        do Memory.poke(memAddress+384, 8176);
+        do Memory.poke(memAddress+416, 8176);
+        do Memory.poke(memAddress+448, -1);
+        do Memory.poke(memAddress+480, -1);
+        return;
+    }
+
+}

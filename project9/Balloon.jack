@@ -44,30 +44,49 @@ class Balloon {
         return;
     }
 
+    //** Get X screen-cooridanate of the balloon */
+    method int getX(){
+        return x;
+    }
+
+    //** Get Y screen-cooridanate of the balloon */
+    method int getY(){
+        return y;
+    }
+
+    //** Get Radius of the balloon */
+    method int getRadius(){
+        return r;
+    }
+
+    //** Get state of release of the balloon */
+    method int getIsReleased(){
+        return isReleased;
+    }
+
+    /** Set the release state of the balloon*/
     method void setRealease(){
         let isReleased = true;
         return;
     }
 
+    /** Return current pressure of the balloon*/
     method int getPressure(){
         return pressure;
     }
+
+    /** Set current pressure to a speified value*/
+
+     method void setPressure(int x){
+        let pressure = x;
+        return;
+    }
     
-    method int getX(){
-        return x;
-    }
-
-    method int getY(){
-        return y;
-    }
-
-    method int getRadius(){
-        return r;
-    }
-
-    method int getIsReleased(){
-        return isReleased;
-    }
+    /** Increase balloon pressure by 1*/
+    method void addPressure (){
+        let pressure = pressure + 1;
+        return ;
+    }       
 
     /** Draws the balloon. */
     method void drawBalloon() {
@@ -75,15 +94,7 @@ class Balloon {
 	    return;
     }
 
-    method void setPressure(int x){
-        let pressure = x;
-        return;
-    }
-    method void addPressure (){
-        let pressure = pressure + 1;
-        return ;
-    }
-    
+    /** Increase the size of a balloon as a (inverse) function of pressure */
     method void growInSize(){
         do hide();
         do addPressure();
@@ -93,6 +104,8 @@ class Balloon {
         return ;
     }
 
+
+    /** Animation to fly balloon to the air and pop when reach the screen edge */
     method void moveBalloon(){
         //move only once release
         if(isReleased){
@@ -103,6 +116,7 @@ class Balloon {
                 let y = y-2;
                 do show();
             }
+
             //pop balloon
             else{
                 do hide();
@@ -114,6 +128,7 @@ class Balloon {
 
     }
 
+    /** Animation of balloon pop */
     method void fireWorkMotion(int x, int y){
         do hide();
         do drawFireWork(x, y);
@@ -123,6 +138,7 @@ class Balloon {
         return;
     }
 
+    /** A popping inanimated drawing */
     method void drawFireWork(int x, int y) {
         var int loc;
         let loc = (y * 32) + (x / 16);

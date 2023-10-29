@@ -1,22 +1,22 @@
 
 /**
  * A graphical Needle. 
-    Display a 16x16 needle that inject the air to the balloon
+    Display a 16x16 needle that injects the air to the balloon
     The needle has a specidied shape based on predefined sprite
     Has method of drawing filled and empty needle for animating purpose
  */
 class Needle {
 
-    field int x, y;           // the needle's screen location
-    field int loc;
-    field boolean isFilled;  
-    field int memAddress;
+    field int x, y;                  // the needle's screen location
+    field int loc, memAddress;       // for sprite memory mapping
+    field boolean isFilled;          // state of the needle
+
     /** Constructs a new bat with the given location */
     constructor Needle new(int Ax, int Ay) {
         let x = Ax;
         let y = Ay;
         let isFilled = false;
-        let loc =  (y * 32) + (x / 16); // memory map offset
+        let loc =  (y * 32) + (x / 16);
         do show();
         return this;
     }
@@ -26,7 +26,6 @@ class Needle {
         do Memory.deAlloc(this);
         return;
     }
-
 
     /** Shows the needle. */
     method void show() {
@@ -42,15 +41,19 @@ class Needle {
         return;
     }
 
+    /** Get state of the needle*/
     method boolean getIsFilled(){
         return isFilled;
     }
 
+    /** Switch the needle state to the opposite*/
     method void reverseIsFilled(){
         let isFilled = ~isFilled;
         return;
     }
 
+
+    /** Draw a needle based on its state */
     method void drawNeedle() {
         let memAddress = 16384+loc;
         if (~isFilled){

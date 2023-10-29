@@ -1,6 +1,6 @@
 
 /**
- * Represents a Balloon game.
+ * Representation of a Balloon game.
  */
 class BalloonGame {
 
@@ -16,10 +16,13 @@ class BalloonGame {
 	    do Screen.clearScreen();
         let needle = Needle.new (256,220);
         let balloon = Balloon.new(264,150, 3);
+
+        // scorebar
         do Screen.drawRectangle(0, 238, 511, 240);
 	    do Output.moveCursor(22,0);
 	    do Output.printString("Score: 0");
-	
+
+        // instructions
 	    do Output.moveCursor(1,2);
 	    do Output.printString("Press SPACE_BAR to Pump");
 	
@@ -28,7 +31,9 @@ class BalloonGame {
 
         do Output.moveCursor(3,2);
 	    do Output.printString("Press D to Reduce Pressure");
-	    let exit = false;
+
+        // control parameters
+        let exit = false;
 	    let score = 0;
         return this;
     }
@@ -47,7 +52,7 @@ class BalloonGame {
         return;
     }
     
-    /** Returns the single instance of this Pong game. */
+    /** Returns the single instance of this Balloon game. */
     function Balloon getInstance() {
         return instance;
     }
@@ -68,16 +73,15 @@ class BalloonGame {
                 do Sys.wait(50);
                 let pressure = balloon.getPressure();
                 do drawPressureGauge(pressure);
-
             }
 
-            // pump
+            // User pumps the air
             if (key = 32) { 
                     do needle.drawNeedle();
                     do needle.reverseIsFilled();
 
-                    if (needle.getIsFilled()){ // pump air in
-
+                    // pump air in only when needle is filled previously
+                    if (needle.getIsFilled()){
                         if (~balloon.getIsReleased()) {
                             do balloon.growInSize();
                             do Output.moveCursor(22,7);
@@ -89,14 +93,15 @@ class BalloonGame {
                     }
             }
              
-            // release
+            // User releases a balloon
             if (key = 82) { 
                 do balloon.setRealease();
                 let score = score + balloon.getRadius();
                 do balloon.setPressure(0);
                 do drawPressureGauge(0);
             }
-            //reduce pressure
+
+            // User reduces the pressure
             if (key = 68) { 
                 let pressure = balloon.getPressure();
                 do balloon.setPressure(pressure - 1);
@@ -104,10 +109,10 @@ class BalloonGame {
                 do drawPressureGauge(pressure);
             }
 
-            // terminate program
+            // terminate program with ESC
             if (key = 140) { let exit = true; }
 		    
-            //pressure condition
+            // terminate the program via pressure condition
             if ((10 * (pressure + 1) ) > 60) {
                 do balloon.hide();
                 do balloon.drawFireWork(balloon.getX(), balloon.getY());
@@ -140,13 +145,13 @@ class BalloonGame {
         return;
     }
 
+    // ** Draw pressure bar filling animation */
     method void drawPressureGauge(int pressure){
         var int i, pressure, height;
         let i = 1;
         let height = 10;
         do Screen.setColor(true);
 
-        //fill right edge of screen
         do Screen.drawRectangle(490, 5, 511, 239);
 
         while (i < pressure){
@@ -161,27 +166,27 @@ class BalloonGame {
     }
 
 
-
-method void drawGaugeArrow(int x, int y) {
-    var int loc;
-    let loc = (y * 32) + (x / 16);
-	let memAddress = 16384 + loc;
-	do Memory.poke(memAddress+0, 0);
-	do Memory.poke(memAddress+32, 0);
-	do Memory.poke(memAddress+64, 0);
-	do Memory.poke(memAddress+96, 1024);
-	do Memory.poke(memAddress+128, 3072);
-	do Memory.poke(memAddress+160, 16383);
-	do Memory.poke(memAddress+192, 32767);
-	do Memory.poke(memAddress+224, -16383);
-	do Memory.poke(memAddress+256, 32767);
-	do Memory.poke(memAddress+288, 8191);
-	do Memory.poke(memAddress+320, 3072);
-	do Memory.poke(memAddress+352, 1024);
-	do Memory.poke(memAddress+384, 0);
-	do Memory.poke(memAddress+416, 0);
-	do Memory.poke(memAddress+448, 0);
-	do Memory.poke(memAddress+480, 0);
-	return;
-}
+    // ** Draw an arrow pointing to a pressure gauge limit */
+    method void drawGaugeArrow(int x, int y) {
+        var int loc;
+        let loc = (y * 32) + (x / 16);
+        let memAddress = 16384 + loc;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 0);
+        do Memory.poke(memAddress+96, 1024);
+        do Memory.poke(memAddress+128, 3072);
+        do Memory.poke(memAddress+160, 16383);
+        do Memory.poke(memAddress+192, 32767);
+        do Memory.poke(memAddress+224, -16383);
+        do Memory.poke(memAddress+256, 32767);
+        do Memory.poke(memAddress+288, 8191);
+        do Memory.poke(memAddress+320, 3072);
+        do Memory.poke(memAddress+352, 1024);
+        do Memory.poke(memAddress+384, 0);
+        do Memory.poke(memAddress+416, 0);
+        do Memory.poke(memAddress+448, 0);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
 }

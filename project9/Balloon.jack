@@ -1,0 +1,130 @@
+
+/**
+ * A graphical Balloon that grows in size. 
+   The balloon that grows with amount of air injecteted
+ */
+
+class Balloon {
+
+    field int x, y;           // the balloon's screen location
+    field int topWall;
+    field int r, pressure; //balloon properties
+    field boolean isReleased;
+    field int memAddress;
+
+    /** Constructs a new ballon with the given location and radius */
+    constructor Balloon new(int Ax, int Ay, int Ar) {
+        let x = Ax;
+        let y = Ay;
+        let r = Ar;
+        let pressure = 0;
+        let isReleased = false;
+        do show();
+        return this;
+    }
+
+    /** Deallocates the object's memory. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+
+    /** Shows the Ballon . */
+    method void show() {
+        do Screen.setColor(true);
+        do drawBalloon();
+        return;
+    }
+
+    /** Hides the balloon. */
+    method void hide() {
+        do Screen.setColor(false);
+        do drawBalloon();
+        return;
+    }
+
+    method void setRealease(){
+        let isReleased = true;
+        return;
+    }
+
+    method int getPressure(){
+        return pressure;
+    }
+    method int getRadius(){
+        return r;
+    }
+    /** Draws the balloon. */
+    method void drawBalloon() {
+	    do Screen.drawCircle(x, y, r);
+	    return;
+    }
+
+    method void addPressure (){
+        let pressure = pressure + 1;
+        return ;
+    }
+    
+    method void growInSize(){
+        do hide();
+        do addPressure();
+        let r = r + (5 / (pressure));
+        let r = r + 1;
+        do show();
+        return ;
+    }
+
+    method void moveBalloon(){
+        //move only once release
+        if(isReleased){
+
+            // not yet hitting the wall
+            if ((y-r > 5) & (y + r < 251)){
+                do hide();
+                let y = y-2;
+                do show();
+            }
+            //pop balloon
+            else{
+                do fireWorkMotion(x, y);
+            }
+        }
+
+        return;
+
+    }
+
+    method void fireWorkMotion(int x, int y){
+        do hide();
+        do drawFireWork(x, y);
+        do Sys.wait(1000);
+        do hide();
+
+        return;
+    }
+
+    method void drawFireWork(int x, int y) {
+        var int loc;
+        let loc = (y * 32) + (x / 16);
+        let memAddress = 16384+loc;
+        do Memory.poke(memAddress+0, -32639);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 8322);
+        do Memory.poke(memAddress+96, 0);
+        do Memory.poke(memAddress+128, 2184);
+        do Memory.poke(memAddress+160, 0);
+        do Memory.poke(memAddress+192, 672);
+        do Memory.poke(memAddress+224, 21525);
+        do Memory.poke(memAddress+256, 320);
+        do Memory.poke(memAddress+288, 128);
+        do Memory.poke(memAddress+320, 1040);
+        do Memory.poke(memAddress+352, 128);
+        do Memory.poke(memAddress+384, 4100);
+        do Memory.poke(memAddress+416, 128);
+        do Memory.poke(memAddress+448, 16385);
+        do Memory.poke(memAddress+480, 128);
+        return;
+    }
+
+}

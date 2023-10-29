@@ -1,6 +1,6 @@
 
 /**
- * A graphical Needle bat. 
+ * A graphical Needle. 
     Display a 16x16 needle that inject the air to the balloon
     The needle has a specidied shape based on predefined sprite
     Has method of drawing filled and empty needle for animating purpose
@@ -11,7 +11,7 @@ class Needle {
     field int loc;
     field boolean isFilled;  
     field int memAddress;
-    /** Constructs a new bat with the given location and width. */
+    /** Constructs a new bat with the given location */
     constructor Needle new(int Ax, int Ay) {
         let x = Ax;
         let y = Ay;

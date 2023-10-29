@@ -6,7 +6,7 @@ class BalloonGame {
 
     static BalloonGame instance; // the singelton, a Pong game instance     
     field Needle needle;            // the needle
-    //field Balloon balloon;          // the balloon
+    field Balloon balloon;          // the balloon
     field boolean exit;       // true when the game is over
     field int score;          // the current score.
 
@@ -14,7 +14,7 @@ class BalloonGame {
     constructor BalloonGame new() {
 	    do Screen.clearScreen();
         let needle = Needle.new (256,220);
-        //let balloon = Balloon.new();
+        let balloon = Balloon.new(264,190, 3);
         do Screen.drawRectangle(0, 238, 511, 240);
 	    do Output.moveCursor(22,0);
 	    do Output.printString("Score: 0");
@@ -53,12 +53,30 @@ class BalloonGame {
             while ((key = 0) & (~exit)) {
                 let key = Keyboard.keyPressed();
                 // do balloon actions
+                do balloon.moveBalloon();
+                do Sys.wait(50);
+
             }
 
+            // pump
             if (key = 32) { 
                     do needle.drawNeedle();
                     do needle.reverseIsFilled();
-             }
+                    if (needle.getIsFilled()){ // pump air in
+                        do balloon.growInSize();
+                        //do Output.moveCursor(22,7);
+                        //let score = balloon.getPressure();
+                        //do Output.printInt(score);
+                    }
+            }
+             
+            // release
+            if (key = 82) { 
+                do balloon.setRealease();
+                let score = score + balloon.getRadius();
+            }
+
+            // balloon pop
 
             // terminate program
 		    else {
@@ -69,7 +87,9 @@ class BalloonGame {
             // Waits for the key to be released.
             while ((~(key = 0)) & (~exit)) {
                 let key = Keyboard.keyPressed();
-                // do balloon actions
+                do balloon.moveBalloon();
+                do Sys.wait(50);
+
             }
         }
 

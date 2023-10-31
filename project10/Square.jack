@@ -7,13 +7,15 @@
 
 class Square {
 
-   field int x, y; 
+   field int x, y;
    field int size; 
 
    constructor Square new(int Ax, int Ay, int Asize) {
       let x = Ax;
       let y = Ay;
       let size = Asize;
+      let k = "test";
+      let toInt = 921;
       do draw();
       return x;
    }

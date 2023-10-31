@@ -44,25 +44,25 @@ class Tokenizer():
     # get the next token from the input and makes it
     # the current --- most difficult
     def advance(self):
-        self.currentToken = ''
         currentChar = self.charStream[self.currentCharIdx]
-        # accumulate character until becomes a token
-        while (currentChar not in self.SYMBOL) and (currentChar != ' '):
-            self.currentToken += currentChar
-            self.currentCharIdx += 1
-            currentChar = self.charStream[self.currentCharIdx]
-
-        # no appending since '' + " " is never accounted
-        if self.currentToken != '':
-            self.tokens.append(self.currentToken)
-
-        if currentChar == ' ':
-            self.currentCharIdx += 1
-        
 
         if currentChar in self.SYMBOL:
+            self.currentToken = currentChar
             self.tokens.append(currentChar)
             self.currentCharIdx += 1
+        else:
+            self.currentToken = ''
+            # accumulate character until becomes a token
+            while (currentChar not in self.SYMBOL) and (currentChar != ' '):
+                self.currentToken += currentChar
+                self.currentCharIdx += 1
+                currentChar = self.charStream[self.currentCharIdx]
+            # no appending since '' + " " shall not be accounted
+            if self.currentToken != '':
+                self.tokens.append(self.currentToken)
+
+            if currentChar == ' ':
+                self.currentCharIdx += 1
 
 
     # return the type of the current token
@@ -101,5 +101,11 @@ if __name__ == "__main__":
     while tkn.hasMoreTokens():
         tkn.advance()
 
+        if tkn.currentToken == '':
+            pass
+        else:
+
+            pass
+            # do something -- type etc.
     #for token in tkn.tokens:
     #    print(token)

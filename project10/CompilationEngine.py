@@ -2,15 +2,20 @@
 
 class CompilationEngine():
     def __init__(self, tokenizedInput):
-        self.tokenizedInputList = tokenizedInput
+        self.tokenizedInputList = tokenizedInput[1:-1] #exclude[<token>]
         self.currentToken = ''
         self.currentTokenIndex = 0
 
-    def _eat(self, string):
-        if string != current:
+    def _eat(self, stringIn):
+        self.currentToken = self.tokenizedInputList[self.currentTokenIndex]
+        stringToken = self.currentToken.split(" ")[1]
+        if stringIn != stringToken:
             raise ValueError
         else:
-            advance
+            self._advance()
+    def _advance(self):
+        self.currentTokenIndex += 1
+        self.currentToken = self.tokenizedInputList[self.currentTokenIndex]
 
     # compile a complete class
     def compileClass(self):
@@ -52,10 +57,10 @@ class CompilationEngine():
 
     # compile a while statement
     def compileWhile(self):
-        eat(while); code to handle / write while
-        eat ('('); code to hand
-        compileExpression
-
+    #    eat(while); code to handle / write while
+    #    eat ('('); code to hand
+    #    compileExpression
+        pass
     # compile a do statement
     def compileDo(self):
         pass
@@ -80,3 +85,11 @@ class CompilationEngine():
     # expressions in the list
     def compileExpressionList(self):
         pass
+
+if __name__ == "__main__":
+
+    test = ['<tokens>','<keyword> while <\keyword>', '<symbol> ( <\symbol>','<\tokens>']
+    cpe = CompilationEngine(test)
+    
+    cpe._eat('while')
+    print(cpe.currentToken, cpe.currentTokenIndex)

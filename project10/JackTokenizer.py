@@ -138,7 +138,6 @@ class Tokenizer():
                 self.toPrint = openBracket + content + closeBracket
 
                 self.result.append(self.toPrint)
-        
 
 if __name__ == "__main__":
     tkn = Tokenizer('./Square.Jack')

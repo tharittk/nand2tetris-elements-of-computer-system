@@ -1,0 +1,31 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+/// File name: projects/10/ExpressionLessSquare/Square.jack
+
+/** Expressionless version of projects/10/Square/Square.jack. */
+
+class Square {
+
+   field int x, y; 
+   field int size; 
+
+   constructor Square new(int Ax, int Ay, int Asize) {
+      let x = Ax;
+      let y = Ay;
+      let size = Asize;
+      do draw();
+      return x;
+   }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   method void draw() {
+      do Screen.setColor(x);
+      do Screen.drawRectangle(x, y, x, y);
+      return;
+   }
+}

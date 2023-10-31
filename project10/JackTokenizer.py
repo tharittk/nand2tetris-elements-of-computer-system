@@ -36,7 +36,7 @@ class Tokenizer():
 
     def hasMoreTokens(self):
         nchar = len(self.charStream)
-        if self.currentCharIdx < nchar - 1:
+        if self.currentCharIdx <= nchar - 1:
             return True
         else:
             return False
@@ -44,15 +44,27 @@ class Tokenizer():
     # get the next token from the input and makes it
     # the current --- most difficult
     def advance(self):
+        self.currentToken = ''
         currentChar = self.charStream[self.currentCharIdx]
         # accumulate character until becomes a token
-        
-        while (currentChar not in self.SYMBOL) or (currentChar != ' '):
-
+        while (currentChar not in self.SYMBOL) and (currentChar != ' '):
             self.currentToken += currentChar
+            self.currentCharIdx += 1
+            currentChar = self.charStream[self.currentCharIdx]
+
+        # no appending since '' + " " is never accounted
+        if self.currentToken != '':
+            self.tokens.append(self.currentToken)
+
+        if currentChar == ' ':
+            self.currentCharIdx += 1
+        
+
+        if currentChar in self.SYMBOL:
+            self.tokens.append(currentChar)
+            self.currentCharIdx += 1
 
 
-    
     # return the type of the current token
     def tokenType(self):
 
@@ -85,5 +97,9 @@ class Tokenizer():
 
 if __name__ == "__main__":
     tkn = Tokenizer('./Square.Jack')
-    tokens = tkn._read_input_file()
-    print(tkn.charStream)
+    tkn._read_input_file()
+    while tkn.hasMoreTokens():
+        tkn.advance()
+
+    #for token in tkn.tokens:
+    #    print(token)

@@ -15,6 +15,7 @@ class Tokenizer():
         self.charStream = ''
         self.currentCharIdx = 0
         self.result = ['<tokens>']
+        #self.currentTokenizedLine = ''
     def _read_input_file(self):
         with open(self.inputFile) as f:
             # process text file
@@ -157,6 +158,10 @@ class Tokenizer():
                 self.toPrint = openBracket +' ' + content +' '+ closeBracket
 
                 self.result.append(self.toPrint)
+
+                # Feed to compiler engine
+                #self.currentTokenizedLine = self.toPrint
+
         self.result.append('</tokens>')
 if __name__ == "__main__":
     import sys

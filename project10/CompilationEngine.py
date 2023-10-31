@@ -1,8 +1,16 @@
 # CompilationEngine
 
 class CompilationEngine():
-    def __init__(self):
-        self.inputFile = ''
+    def __init__(self, tokenizedInput):
+        self.tokenizedInputList = tokenizedInput
+        self.currentToken = ''
+        self.currentTokenIndex = 0
+
+    def _eat(self, string):
+        if string != current:
+            raise ValueError
+        else:
+            advance
 
     # compile a complete class
     def compileClass(self):
@@ -44,7 +52,9 @@ class CompilationEngine():
 
     # compile a while statement
     def compileWhile(self):
-        pass
+        eat(while); code to handle / write while
+        eat ('('); code to hand
+        compileExpression
 
     # compile a do statement
     def compileDo(self):

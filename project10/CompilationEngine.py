@@ -39,6 +39,11 @@ class CompilationEngine():
     def _getTokenLexical(self):
         return  self.currentToken.split(" ")[1]
     
+    def _getLookAheadLexical(self):
+        tokenAhead = self.tokenizedInputList[self.currentTokenIndex + 1]
+        stringToken = tokenAhead.split(" ")[1]
+        return stringToken
+    
     def _getTokenLexicalType(self):
         return  self.currentToken.split(">")[0].split("<")[1]
     
@@ -363,13 +368,13 @@ class CompilationEngine():
 
         self.eat_write_advance('return')
 
-
         #
         # optional expression
         #
-
+        
         # ';'
         self.eat_write_advance(';')
+
         self.printCompileGeneral('</returnStatement>')
 
     # compile an expression
@@ -380,20 +385,120 @@ class CompilationEngine():
         self.printCompiledTokenFull()
         #
 
+        # op
+        if self._getTokenLexical() in ['+', '-', '*', '/', '&amp', '|', '&lt', '&gt', '=' ]:
+
+            pass
 
     # compile a term
     # if current token is identifier,
     # must resolve into var, array, or subroutine call
     # with single look ahead
     def compileTerm(self):
-        pass
+        self.printCompileGeneral('<term>')
+        
+        # integer
+        if self._getTokenLexicalType() == 'integerConstant':
+            self.printCompiledTokenFull()
+            self._advance()
+
+        # string
+        elif self._getTokenLexicalType() == 'stringConstant':
+            self.printCompiledTokenFull()
+            self._advance()
+
+        # keyword constant
+        elif self._getTokenLexical() in ['true', 'false', 'null', 'this']:
+            self.printCompileGeneral('<keywordConstant>{kw}</keywordConstant>'.format(kw = self._getTokenLexical()))
+            self._advance()
+
+        # varName | varName[expression] | subroutineCall 
+        elif self._getTokenLexicalType() == 'idenfifer':
+            
+            # varName[expression]
+            if self._getLookAheadLexical() == '[':
+                # varName
+                self.printCompiledTokenFull()
+                self._advance()
+                # '['
+                self.eat_write_advance('[')
+                # expression
+                self.compileExpression()
+                # ']'
+                self.eat_write_advance(']')
+
+            # subrountineCall
+            # subroutineName (expressionList)
+            elif self._getLookAheadLexical() == '(':
+                # subroutineName
+                self.printCompiledTokenFull()
+                self._advance()
+                # '('
+                self.eat_write_advance('(')
+                # expressionList
+                self.compileExpressionList()
+                # ')'
+                self.eat_write_advance(')')
+
+            # subrountineCall
+            # className | varName . subroutineName (expressionList)
+            elif self._getLookAheadLexical() == '.':
+                # class | varName
+                self.printCompiledTokenFull()
+                self._advance()
+                # '.'
+                self.eat_write_advance('.')
+                #subroutineName
+                assert self._getTokenLexicalType == 'identifier'
+                self.printCompiledTokenFull()
+                self._advance()
+                # '('
+                self.eat_write_advance('(')
+                # expressionList
+                self.compileExpressionList()
+                # ')'
+                self.eat_write_advance(')')
+
+            # varName
+            else:
+                self.printCompiledTokenFull()
+                self._advance()
+
+
+        # ( expression )
+        elif self._getTokenLexical() == '(':
+            self.eat_write_advance('(')
+            self.compileExpression()
+            self.eat_write_advance(')')
+        
+        # unaryOp
+        elif self._getTokenLexical() in ['-', '~'] and (self.tokenizedInputList[self.currentTokenIndex - 1]).split(" ")[1] == '=':
+            
+            self.printCompileGeneral('<unaryOp>{unaryOp}</unaryOp>'.format(unaryOp = self._getTokenLexical()))
+
+            self._advance()
+
+        self.printCompileGeneral('<\term>')
+    
+
 
     # compile a possibly empty comma separated list
     # of expressions. Return the number of 
     # expressions in the list
     def compileExpressionList(self):
         pass
+        self.printCompileGeneral('<statements>')
 
+        # while there are next statements
+        while self._getTokenLexical() in ['let', 'if', 'while', 'do' ,'return']:
+            if self._getTokenLexical() == 'let':
+                self.compileLet()
+
+
+            self._advance()
+
+
+            
     def run(self):
         #n_token = len(self.tokenizedInputList)
         #for i in range(n_token):

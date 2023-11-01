@@ -1,21 +1,50 @@
 # CompilationEngine
 
 class CompilationEngine():
-    def __init__(self, tokenizedInput):
-        self.tokenizedInputList = tokenizedInput[1:-1] #exclude[<token>]
+    def __init__(self, xmlFile):
+        #self.tokenizedInputList = tokenizedInput[1:-1] #exclude[<token>]
+        self.tokenizedInputList = self._read_tokenized_xml(xmlFile)[1:-1]
         self.currentToken = ''
-        self.currentTokenIndex = 0
+        self.currentTokenIndex = -1 # not yet look at any token
+        self.result = []
+        
+
+    # during testing
+    def _read_tokenized_xml(self, xml_file):
+        xmlLines = []
+        with open(xml_file) as f:
+            for line in f:
+                xmlLines.append(line.strip('\n'))
+        return xmlLines
+    
 
     def _eat(self, stringIn):
-        self.currentToken = self.tokenizedInputList[self.currentTokenIndex]
-        stringToken = self.currentToken.split(" ")[1]
+        tokenAhead = self.tokenizedInputList[self.currentTokenIndex + 1]
+        stringToken = tokenAhead.split(" ")[1]
         if stringIn != stringToken:
             raise ValueError
         else:
             self._advance()
+
     def _advance(self):
         self.currentTokenIndex += 1
         self.currentToken = self.tokenizedInputList[self.currentTokenIndex]
+
+    def _getCurrentTokenFull(self):
+        return self.tokenizedInputList[self.currentTokenIndex]
+
+    def _getTokenContent(self):
+        return  self.currentToken.split(" ")[1]
+    
+    def _getTokenType(self):
+        return  self.currentToken.split(">")[0].split("<")[1]
+    
+    def printCompileGeneral(self, stringPrint):
+        self.result.append(stringPrint)
+
+    def printCompiledTokenFull(self):
+        line = self._getCurrentTokenFull()
+        self.result.append(line)
 
     # compile a complete class
     def compileClass(self):
@@ -60,7 +89,21 @@ class CompilationEngine():
     #    eat(while); code to handle / write while
     #    eat ('('); code to hand
     #    compileExpression
-        pass
+        self._eat('while')
+        self.printCompileGeneral('<whileStatement>')
+        self.printCompiledTokenFull()
+        self._eat('(')
+        self.printCompiledTokenFull()
+        # recursion
+        self._eat(')')
+        self.printCompiledTokenFull()
+        self._eat('{')
+        self.printCompiledTokenFull()
+        self._eat('}')
+        self.printCompiledTokenFull()
+        self.printCompileGeneral('</whileStatement>')
+
+
     # compile a do statement
     def compileDo(self):
         pass
@@ -86,10 +129,21 @@ class CompilationEngine():
     def compileExpressionList(self):
         pass
 
+    def run(self):
+        #n_token = len(self.tokenizedInputList)
+        #for i in range(n_token):
+        self.compileWhile()
+
 if __name__ == "__main__":
 
-    test = ['<tokens>','<keyword> while <\keyword>', '<symbol> ( <\symbol>','<\tokens>']
-    cpe = CompilationEngine(test)
+    #test = ['<tokens>','<keyword> while <\keyword>', '<symbol> ( <\symbol>','<\tokens>']
+    cpe = CompilationEngine('./OutWhile.xml')
     
-    cpe._eat('while')
-    print(cpe.currentToken, cpe.currentTokenIndex)
+    print(cpe.tokenizedInputList)
+
+    cpe.run()
+    #cpe._eat('while')
+    #print(cpe.currentToken, cpe.currentTokenIndex)
+    #print(cpe.getTokenContent(), cpe.getTokenType())
+    for line in cpe.result:
+        print(line)

@@ -268,19 +268,28 @@ class CompilationEngine():
         # varName
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
-        self._advance()
 
         #
-        # optional expression
+        # optional expression in case of array
         #
-        
+        if self._getLookAheadLexical() == '[':
+            # '['
+            self.eat_write_advance('[')
+            # expression
+            self.compileExpression()
+            # ']'
+            self.eat_write_advance(']')
+
         # '='
         self.eat_write_advance('=')
 
-        #
-        # compile expression
-        #
         
+        # compile expression
+        self.compileExpression()
+
+        # ';'
+        self.eat_write_advance(';')
+
         self.printCompileGeneral('</letStatement>')
 
     # compile an if with possibly else clause
@@ -291,9 +300,11 @@ class CompilationEngine():
         self.eat_write_advance('if')
         # '('
         self.eat_write_advance('(')
-        #
+        
+
         # expression
-        #
+        self.compileExpression()
+
         # ')'
         self.eat_write_advance(')')
         # '{'
@@ -328,9 +339,9 @@ class CompilationEngine():
         # '('
         self.eat_write_advance('(')
 
-        #
+        
         # expression
-        #
+        self.compileExpression()
 
         # ')'
         self.eat_write_advance(')')
@@ -356,9 +367,8 @@ class CompilationEngine():
         # 'do'
         self.eat_write_advance('do')
 
-        #
         # subroutine call
-        #
+        self.compileTerm()
 
         self.printCompileGeneral('</doStatement>')
 
@@ -368,9 +378,8 @@ class CompilationEngine():
 
         self.eat_write_advance('return')
 
-        #
-        # optional expression
-        #
+        if self._getLookAheadLexical() != ';':
+            self.compileExpression()
         
         # ';'
         self.eat_write_advance(';')
@@ -411,7 +420,7 @@ class CompilationEngine():
 
         # keyword constant
         elif self._getTokenLexical() in ['true', 'false', 'null', 'this']:
-            self.printCompileGeneral('<keywordConstant>{kw}</keywordConstant>'.format(kw = self._getTokenLexical()))
+            self.printCompileGeneral('<keywordt>{kw}</keywordt>'.format(kw = self._getTokenLexical()))
             self._advance()
 
         # varName | varName[expression] | subroutineCall 
@@ -421,7 +430,6 @@ class CompilationEngine():
             if self._getLookAheadLexical() == '[':
                 # varName
                 self.printCompiledTokenFull()
-                self._advance()
                 # '['
                 self.eat_write_advance('[')
                 # expression
@@ -434,7 +442,6 @@ class CompilationEngine():
             elif self._getLookAheadLexical() == '(':
                 # subroutineName
                 self.printCompiledTokenFull()
-                self._advance()
                 # '('
                 self.eat_write_advance('(')
                 # expressionList
@@ -447,19 +454,19 @@ class CompilationEngine():
             elif self._getLookAheadLexical() == '.':
                 # class | varName
                 self.printCompiledTokenFull()
-                self._advance()
                 # '.'
                 self.eat_write_advance('.')
                 #subroutineName
                 assert self._getTokenLexicalType == 'identifier'
                 self.printCompiledTokenFull()
-                self._advance()
                 # '('
                 self.eat_write_advance('(')
                 # expressionList
                 self.compileExpressionList()
                 # ')'
                 self.eat_write_advance(')')
+
+                self._advance()
 
             # varName
             else:
@@ -483,23 +490,26 @@ class CompilationEngine():
         self.printCompileGeneral('<\term>')
     
 
-
     # compile a possibly empty comma separated list
     # of expressions. Return the number of 
     # expressions in the list
     def compileExpressionList(self):
         self.printCompileGeneral('<expressionList>')
+        count = 0
+        
+        # empty
+        if self._getLookAheadLexical() != ')':
 
-        self.compileExpression()
-
-        # optional expression
-        while self._getTokenLexical() == ',':
-            # ','
-            self.printCompiledTokenFull()
-            self._advance()
-
-            # expression
             self.compileExpression()
+
+            # optional expression
+            while self._getTokenLexical() == ',':
+                # ','
+                self.printCompiledTokenFull()
+                self._advance()
+
+                # expression
+                self.compileExpression()
 
         self.printCompileGeneral('<\expressionList>')
 

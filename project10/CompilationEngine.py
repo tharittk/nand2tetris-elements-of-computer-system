@@ -17,8 +17,7 @@ class CompilationEngine():
         return xmlLines
 
     def _eat(self, stringIn):
-        tokenAhead = self.tokenizedInputList[self.currentTokenIndex + 1]
-        stringToken = tokenAhead.split(" ")[1]
+        stringToken = self._getLookAheadLexical()
         if stringIn != stringToken:
             raise ValueError
         else:
@@ -28,10 +27,9 @@ class CompilationEngine():
         self.currentTokenIndex += 1
         self.currentToken = self.tokenizedInputList[self.currentTokenIndex]
 
-    def eat_write_advance(self, stringIn):
+    def eat_write(self, stringIn):
         self._eat(stringIn)
         self.printCompiledTokenFull()
-        self._advance()
 
     def _getCurrentTokenFull(self):
         return self.tokenizedInputList[self.currentTokenIndex]
@@ -59,15 +57,16 @@ class CompilationEngine():
 
         self.printCompileGeneral('<class>')
         # 'class'
-        self.eat_write_advance('class')
+        self.eat_write('class')
+        self._advance()
 
         # className
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
 
         # '{'
-        self.eat_write_advance('{')
-
+        self.eat_write('{')
+        self._advance()
 
         # optional class var dec
         if self._getTokenLexical() in  ['static', 'field']:
@@ -78,7 +77,7 @@ class CompilationEngine():
             self.compileSubroutine()
 
         # '}'
-        self.eat_write_advance('}')
+        self.eat_write('}')
         self.printCompileGeneral('<\class>')
 
 
@@ -114,7 +113,7 @@ class CompilationEngine():
 
 
         # ';'
-        self.eat_write_advance(';')
+        self.eat_write(';')
 
         self.printCompileGeneral('<\classVarDec>')
 
@@ -139,13 +138,16 @@ class CompilationEngine():
         self._advance()
 
         # '('
-        self.eat_write_advance('(')
+        self.eat_write('(')
+        self._advance()
 
         # parameterList
         self.compileParameterList()
 
         # ')'
-        self.eat_write_advance(')')
+        self.eat_write(')')
+        self._advance()
+
 
         # subroutine body
         self.compileSubroutineBody()
@@ -190,17 +192,21 @@ class CompilationEngine():
     def compileSubroutineBody(self):
         self.printCompileGeneral('<subRoutineBody>')
         
-        self.eat_write_advance('{')
+        self.eat_write('{')
+        self._advance()
 
         # optional varDec
         if self._getTokenLexical() == 'var':
             self.compileVarDec()
+            self._advance()
+
+
 
         # statements
         self.compileStatements()
 
         # '}'
-        self.eat_write_advance('}')
+        self.eat_write('}')
 
         self.printCompileGeneral('</subRoutineBody>')
 
@@ -209,7 +215,8 @@ class CompilationEngine():
         self.printCompileGeneral('<varDec>')
 
         # 'var'
-        self.eat_write_advance('var')
+        self.eat_write('var')
+        self._advance()
 
         # type
         assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
@@ -234,7 +241,7 @@ class CompilationEngine():
             self._advance()
 
         # ';'
-        self.eat_write_advance(';')
+        self.eat_write(';')
         self.printCompileGeneral('</varDec>')
 
     # compile a sequences of statements
@@ -263,7 +270,8 @@ class CompilationEngine():
     def compileLet(self):
         self.printCompileGeneral('<letStatement>')
         # 'let'
-        self.eat_write_advance('let')
+        self.eat_write('let')
+        self._advance()
 
         # varName
         assert self._getTokenLexicalType() == 'identifier'
@@ -274,21 +282,22 @@ class CompilationEngine():
         #
         if self._getLookAheadLexical() == '[':
             # '['
-            self.eat_write_advance('[')
+            self.eat_write('[')
+            self._advance()
             # expression
             self.compileExpression()
             # ']'
-            self.eat_write_advance(']')
+            self.eat_write(']')
 
         # '='
-        self.eat_write_advance('=')
+        self.eat_write('=')
+        self._advance()
 
-        
         # compile expression
         self.compileExpression()
 
         # ';'
-        self.eat_write_advance(';')
+        self.eat_write(';')
 
         self.printCompileGeneral('</letStatement>')
 
@@ -297,34 +306,39 @@ class CompilationEngine():
         self.printCompileGeneral('<ifStatement>')
 
         # 'if'
-        self.eat_write_advance('if')
+        self.eat_write('if')
         # '('
-        self.eat_write_advance('(')
+        self.eat_write('(')
+        self._advance()
         
 
         # expression
         self.compileExpression()
 
         # ')'
-        self.eat_write_advance(')')
+        self.eat_write(')')
         # '{'
-        self.eat_write_advance('{')
+        self.eat_write('{')
+        self._advance()
 
         # statements
         self.compileStatements()
 
         # '}'
-        self.eat_write_advance('}')
+        self.eat_write('}')
+        self._advance()
 
         # optional else      
         if self._getTokenLexical() == 'else':
-            self.eat_write_advance('else')
-            self.eat_write_advance('{')
+            self.eat_write('else')
+            self.eat_write('{')
+            self._advance()
 
             # statements
             self.compileStatements()
 
-            self.eat_write_advance('}')
+            self.eat_write('}')
+            self._advance()
 
         self.printCompileGeneral('</ifStatement>')
 
@@ -334,28 +348,30 @@ class CompilationEngine():
         self.printCompileGeneral('<whileStatement>')
 
         # 'while'
-        self.eat_write_advance('while')
+        self.eat_write('while')
 
         # '('
-        self.eat_write_advance('(')
+        self.eat_write('(')
+        self._advance()
 
         
         # expression
         self.compileExpression()
 
         # ')'
-        self.eat_write_advance(')')
+        self.eat_write(')')
 
 
         # '{'
-        self.eat_write_advance('{')
+        self.eat_write('{')
+        self._advance()
 
 
         # statements
         self.compileStatements()
 
         # '}'
-        self.eat_write_advance('}')
+        self.eat_write('}')
 
         self.printCompileGeneral('</whileStatement>')
 
@@ -365,7 +381,8 @@ class CompilationEngine():
         self.printCompileGeneral('<doStatement>')
 
         # 'do'
-        self.eat_write_advance('do')
+        self.eat_write('do')
+        self._advance()
 
         # subroutine call
         self.compileTerm()
@@ -376,13 +393,14 @@ class CompilationEngine():
     def compileReturn(self):
         self.printCompileGeneral('<returnStatement>')
 
-        self.eat_write_advance('return')
+        self.eat_write('return')
 
         if self._getLookAheadLexical() != ';':
+            self._advance()
             self.compileExpression()
         
         # ';'
-        self.eat_write_advance(';')
+        self.eat_write(';')
 
         self.printCompileGeneral('</returnStatement>')
 
@@ -391,6 +409,7 @@ class CompilationEngine():
         self.printCompileGeneral('<expression>')
         self.compileTerm()
 
+        self._advance()
         # (op term)
         if self._getTokenLexical() in ['+', '-', '*', '/', '&amp;', '|', '&lt;', '&gt;', '=' ]:
             # op
@@ -420,7 +439,7 @@ class CompilationEngine():
 
         # keyword constant
         elif self._getTokenLexical() in ['true', 'false', 'null', 'this']:
-            self.printCompileGeneral('<keywordt>{kw}</keywordt>'.format(kw = self._getTokenLexical()))
+            self.printCompileGeneral('<keyword>{kw}</keyword>'.format(kw = self._getTokenLexical()))
             self._advance()
 
         # varName | varName[expression] | subroutineCall 
@@ -431,11 +450,13 @@ class CompilationEngine():
                 # varName
                 self.printCompiledTokenFull()
                 # '['
-                self.eat_write_advance('[')
+                self.eat_write('[')
+                self._advance()
+
                 # expression
                 self.compileExpression()
                 # ']'
-                self.eat_write_advance(']')
+                self.eat_write(']')
 
             # subrountineCall
             # subroutineName (expressionList)
@@ -443,11 +464,13 @@ class CompilationEngine():
                 # subroutineName
                 self.printCompiledTokenFull()
                 # '('
-                self.eat_write_advance('(')
+                self.eat_write('(')
+                self._advance()
+
                 # expressionList
                 self.compileExpressionList()
                 # ')'
-                self.eat_write_advance(')')
+                self.eat_write(')')
 
             # subrountineCall
             # className | varName . subroutineName (expressionList)
@@ -455,37 +478,34 @@ class CompilationEngine():
                 # class | varName
                 self.printCompiledTokenFull()
                 # '.'
-                self.eat_write_advance('.')
+                self.eat_write('.')
+                self._advance()
                 #subroutineName
                 assert self._getTokenLexicalType == 'identifier'
                 self.printCompiledTokenFull()
                 # '('
-                self.eat_write_advance('(')
+                self.eat_write('(')
                 # expressionList
                 self.compileExpressionList()
                 # ')'
-                self.eat_write_advance(')')
+                self.eat_write(')')
 
-                self._advance()
 
             # varName
             else:
                 self.printCompiledTokenFull()
-                self._advance()
 
 
         # ( expression )
         elif self._getTokenLexical() == '(':
-            self.eat_write_advance('(')
+            self.eat_write('(')
             self.compileExpression()
-            self.eat_write_advance(')')
+            self.eat_write(')')
         
         # unaryOp
         elif self._getTokenLexical() in ['-', '~'] and (self.tokenizedInputList[self.currentTokenIndex - 1]).split(" ")[1] == '=':
-            
             self.printCompileGeneral('<unaryOp>{unaryOp}</unaryOp>'.format(unaryOp = self._getTokenLexical()))
 
-            self._advance()
 
         self.printCompileGeneral('<\term>')
     
@@ -499,8 +519,9 @@ class CompilationEngine():
         
         # empty
         if self._getLookAheadLexical() != ')':
-
+            self._advance()
             self.compileExpression()
+            self._advance()
 
             # optional expression
             while self._getTokenLexical() == ',':
@@ -510,6 +531,7 @@ class CompilationEngine():
 
                 # expression
                 self.compileExpression()
+                self._advance()
 
         self.printCompileGeneral('<\expressionList>')
 

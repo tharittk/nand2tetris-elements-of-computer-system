@@ -11,7 +11,7 @@ if __name__ == '__main__':
     cpe = CompilationEngine(tkn.result)
     cpe.run()
 
-    with open('./ArrayTest/OutFull.xml', 'w') as f:
+    with open('./compiled.xml', 'w') as f:
         for token in cpe.result:
             f.write(token + '\n')
         

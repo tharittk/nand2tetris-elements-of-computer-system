@@ -2,8 +2,8 @@
 
 class CompilationEngine():
     def __init__(self, xmlFile):
-        #self.tokenizedInputList = tokenizedInput[1:-1] #exclude[<token>]
-        self.tokenizedInputList = self._read_tokenized_xml(xmlFile)[1:-1]
+        self.tokenizedInputList = xmlFile[1:-1] #exclude[<token>]
+        #self.tokenizedInputList = self._read_tokenized_xml(xmlFile)[1:-1]
         self.currentToken = ''
         self.currentTokenIndex = -1 # not yet look at any token
         self.result = []
@@ -83,7 +83,7 @@ class CompilationEngine():
 
         # '}'
         self.eat_write('}')
-        self.printCompileGeneral('<\class>')
+        self.printCompileGeneral('</class>')
 
 
     # compile a static variable or a field decoration
@@ -120,7 +120,7 @@ class CompilationEngine():
         # ';'
         self.eat_write(';')
 
-        self.printCompileGeneral('<\classVarDec>')
+        self.printCompileGeneral('</classVarDec>')
 
     # compile a complete method, function, or constructor
     def compileSubroutine(self):
@@ -154,7 +154,7 @@ class CompilationEngine():
         self.compileSubroutineBody()
 
 
-        self.printCompileGeneral('<\subroutineDec>')
+        self.printCompileGeneral('</subroutineDec>')
 
 
     # compile a (possibly empty) parameter list
@@ -188,7 +188,7 @@ class CompilationEngine():
                 self.printCompiledTokenFull()
                 self._advance()
 
-        self.printCompileGeneral('<\parameterList>')
+        self.printCompileGeneral('</parameterList>')
 
     # compile a subroutine's body
     def compileSubroutineBody(self):
@@ -428,7 +428,7 @@ class CompilationEngine():
             self._advance()
             self.compileTerm()
 
-        self.printCompileGeneral('<\expression>')
+        self.printCompileGeneral('</expression>')
         #print('<<< out expression')
         #print('after out expression', self._getCurrentTokenFull())
 
@@ -526,7 +526,7 @@ class CompilationEngine():
             self.printCompileGeneral('<unaryOp>{unaryOp}</unaryOp>'.format(unaryOp = self._getTokenLexical()))
 
 
-        self.printCompileGeneral('<\term>')
+        self.printCompileGeneral('</term>')
         #print('after out term', self._getCurrentTokenFull())
         #print('<<< out term')
 
@@ -557,7 +557,7 @@ class CompilationEngine():
 
                 print('in multi')
 
-        self.printCompileGeneral('<\expressionList>')
+        self.printCompileGeneral('</expressionList>')
         #print('<<< out expressionList')
         #print('current', self._getCurrentTokenFull())
 
@@ -569,5 +569,5 @@ if __name__ == "__main__":
     cpe = CompilationEngine('./Out.xml')
     #print(cpe.tokenizedInputList)
     cpe.run()
-    for line in cpe.result:
-        print(line)
+    #for line in cpe.result:
+    #s    print(line)

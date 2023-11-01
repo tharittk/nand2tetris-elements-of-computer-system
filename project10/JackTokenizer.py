@@ -171,7 +171,7 @@ if __name__ == "__main__":
     tkn.run()
     #for token in tkn.result:
     #    print(token)
-    with open('./ExpressionLessSquare/Out.xml', 'w') as f:
+    with open('./Out.xml', 'w') as f:
         for token in tkn.result:
             f.write(token + '\n')
         

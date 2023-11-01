@@ -379,16 +379,18 @@ class CompilationEngine():
 
     # compile an expression
     def compileExpression(self):
-        
-        # PLACEHOLDER
-        self._advance()
-        self.printCompiledTokenFull()
-        #
+        self.printCompileGeneral('<expression>')
+        self.compileTerm()
 
-        # op
-        if self._getTokenLexical() in ['+', '-', '*', '/', '&amp', '|', '&lt', '&gt', '=' ]:
+        # (op term)
+        if self._getTokenLexical() in ['+', '-', '*', '/', '&amp;', '|', '&lt;', '&gt;', '=' ]:
+            # op
+            self.printCompiledTokenFull()
+            self._advance()
+            # term
+            self.compileTerm()
 
-            pass
+        self.printCompileGeneral('<\expression>')
 
     # compile a term
     # if current token is identifier,
@@ -486,19 +488,21 @@ class CompilationEngine():
     # of expressions. Return the number of 
     # expressions in the list
     def compileExpressionList(self):
-        pass
-        self.printCompileGeneral('<statements>')
+        self.printCompileGeneral('<expressionList>')
 
-        # while there are next statements
-        while self._getTokenLexical() in ['let', 'if', 'while', 'do' ,'return']:
-            if self._getTokenLexical() == 'let':
-                self.compileLet()
+        self.compileExpression()
 
-
+        # optional expression
+        while self._getTokenLexical() == ',':
+            # ','
+            self.printCompiledTokenFull()
             self._advance()
 
+            # expression
+            self.compileExpression()
 
-            
+        self.printCompileGeneral('<\expressionList>')
+
     def run(self):
         #n_token = len(self.tokenizedInputList)
         #for i in range(n_token):

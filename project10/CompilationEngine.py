@@ -115,8 +115,18 @@ class CompilationEngine():
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
             self._advance()
+'''
+        # optional variable but same type
+        while self._getLookAheadLexical() == ',':
+            # ','
+            self._advance()
+            self.printCompiledTokenFull()
+            self._advance()
 
-
+            # varName
+            assert self._getTokenLexicalType() == 'identifier'
+            self.printCompiledTokenFull()
+'''
         # ';'
         self.eat_write(';')
 

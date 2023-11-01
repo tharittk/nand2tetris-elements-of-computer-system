@@ -195,109 +195,177 @@ class CompilationEngine():
 
         self.printCompileGeneral('</varDec>')
 
-    # compile a sequents of statements
-    # does not handle enclosing { }
+    # compile a sequences of statements
     def compileStatements(self):
-        pass
+        self.printCompileGeneral('<statements>')
 
+        # while there are next statements
+        while self._getTokenLexical() in ['let', 'if', 'while', 'do' ,'return']:
+            if self._getTokenLexical() == 'let':
+                self.compileLet()
+            elif self._getTokenLexical() == 'if':
+                self.compileIf()
+            elif self._getTokenLexical() == 'while':
+                self.compileWhile()
+            elif self._getTokenLexical == 'do':
+                self.compileDo()
+            elif self._getTokenLexical() == 'return':
+                self.compileReturn
+
+            self._advance()
+
+        self.printCompileGeneral('</statements>')
+
+        
     # compile a let statement
     def compileLet(self):
-        self._eat('let')
         self.printCompileGeneral('<letStatement>')
+        # 'let'
+        self._eat('let')
         self.printCompiledTokenFull()
+        self._advance()
 
-        # compileterm
+        # varName
+        assert self._getTokenLexicalType() == 'identifier'
+        self.printCompiledTokenFull()
+        self._advance()
+
+        #
+        # optional expression
+        #
         
+        # '='
         self._eat('=')
         self.printCompiledTokenFull()
-        
-        # compile expression
+        self._advance()
 
+        #
+        # compile expression
+        #
+        
         self.printCompileGeneral('</letStatement>')
 
     # compile an if with possibly else clause
     def compileIf(self):
-        self._eat('if')
         self.printCompileGeneral('<ifStatement>')
-        self.printCompiledTokenFull()
 
+        # 'if'
+        self._eat('if')
+        self.printCompiledTokenFull()
+        self._advance()
+
+        # '('
         self._eat('(')
         self.printCompiledTokenFull()
+        self._advance()
 
+        #
         # expression
+        #
 
+        # ')'
         self._eat(')')
         self.printCompiledTokenFull()
+        self._advance()
 
-
+        # '{'
         self._eat('{')
         self.printCompiledTokenFull()
+        self._advance()
 
         # statements
+        self.compileStatements()
 
+        # '}'
         self._eat('}')
         self.printCompiledTokenFull()
+        self._advance()
 
-        #optional else - no need explicit handling ?
-      
-        try:
+        # optional else      
+        if self._getTokenLexical() == 'else':
             self._eat('else')
             self.printCompiledTokenFull()
+            self._advance()
 
             self._eat('{')
             self.printCompiledTokenFull()
+            self._advance()
 
             # statements
+            self.compileStatements()
 
             self._eat('}')
             self.printCompiledTokenFull()
-        
-        except:
-
-            pass
+            self._advance()
 
         self.printCompileGeneral('</ifStatement>')
 
     # compile a while statement
     def compileWhile(self):
-        self._eat('while')
-        self.printCompileGeneral('<whileStatement>')
-        self.printCompiledTokenFull()
 
+        self.printCompileGeneral('<whileStatement>')
+
+        # 'while'
+        self._eat('while')
+        self.printCompiledTokenFull()
+        self._advance()
+
+        # '('
         self._eat('(')
         self.printCompiledTokenFull()
+        self._advance()
 
+        #
         # expression
+        #
 
+        # ')'
         self._eat(')')
         self.printCompiledTokenFull()
+        self._advance()
 
+        # '{'
         self._eat('{')
         self.printCompiledTokenFull()
+        self._advance()
 
         # statements
+        self.compileStatements()
 
+        # '}'
         self._eat('}')
         self.printCompiledTokenFull()
+        self._advance()
+
         self.printCompileGeneral('</whileStatement>')
 
 
     # compile a do statement
     def compileDo(self):
-        self._eat('do')
         self.printCompileGeneral('<doStatement>')
 
+        # 'do'
+        self._eat('do')
+        self.printCompiledTokenFull()
+        self._advance()
+
+        #
         # subroutine call
+        #
 
         self.printCompileGeneral('</doStatement>')
 
     # compile a return statement
     def compileReturn(self):
-        self._eat('return')
         self.printCompileGeneral('<returnStatement>')
+        self._eat('return')
+        self.printCompiledTokenFull()
+        self._advance()
 
+        #
         # optional expression
-
+        #
+        
         self._eat(';')
         self.printCompiledTokenFull()
         self.printCompileGeneral('</returnStatement>')

@@ -28,6 +28,11 @@ class CompilationEngine():
         self.currentTokenIndex += 1
         self.currentToken = self.tokenizedInputList[self.currentTokenIndex]
 
+    def eat_write_advance(self, stringIn):
+        self._eat(stringIn)
+        self.printCompiledTokenFull()
+        self._advance()
+
     def _getCurrentTokenFull(self):
         return self.tokenizedInputList[self.currentTokenIndex]
 
@@ -47,36 +52,36 @@ class CompilationEngine():
     # compile a complete class
     def compileClass(self):
 
-        # 'class'
-        self._eat('class')
         self.printCompileGeneral('<class>')
-        self.printCompiledTokenFull()
-        self._advance()
+        # 'class'
+        self.eat_write_advance('class')
 
         # className
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
 
         # '{'
-        self._eat('{')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('{')
 
-        # optional
-        # class var Dec, subroutine Dec
-        #
+
+        # optional class var dec
+        if self._getTokenLexical() in  ['static', 'field']:
+            self.compileClassVarDec()
+
+        # optional subroutine dec
+        if self._getTokenLexical() in ['constructor', 'function', 'method']:
+            self.compileSubroutine()
 
         # '}'
-        self._eat('}')
-        self.printCompiledTokenFull()
+        self.eat_write_advance('}')
         self.printCompileGeneral('<\class>')
+
 
     # compile a static variable or a field decoration
     def compileClassVarDec(self):
 
         self.printCompileGeneral('<classVarDec>')
         # (static | field)
-        self._advance()
         assert self._getTokenLexical() in ['static', 'field']
         self.printCompiledTokenFull()
         self._advance()
@@ -104,9 +109,8 @@ class CompilationEngine():
 
 
         # ';'
-        self._eat(';')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance(';')
+
         self.printCompileGeneral('<\classVarDec>')
 
     # compile a complete method, function, or constructor
@@ -130,19 +134,17 @@ class CompilationEngine():
         self._advance()
 
         # '('
-        self._eat('(')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('(')
 
         # parameterList
         self.compileParameterList()
 
         # ')'
-        self._eat(')')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance(')')
 
+        # subroutine body
         self.compileSubroutineBody()
+
 
         self.printCompileGeneral('<\subroutineDec>')
 
@@ -155,6 +157,7 @@ class CompilationEngine():
             # type
             self.printCompiledTokenFull()
             self._advance()
+
             # varName
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
@@ -170,6 +173,7 @@ class CompilationEngine():
                 assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
                 self.printCompiledTokenFull()
                 self._advance()
+
                 # varName
                 assert self._getTokenLexicalType() == 'identifier'
                 self.printCompiledTokenFull()
@@ -181,10 +185,7 @@ class CompilationEngine():
     def compileSubroutineBody(self):
         self.printCompileGeneral('<subRoutineBody>')
         
-        # '{'
-        self._eat('{')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('{')
 
         # optional varDec
         if self._getTokenLexical() == 'var':
@@ -194,17 +195,16 @@ class CompilationEngine():
         self.compileStatements()
 
         # '}'
-        self._eat('}')
-        self.printCompiledTokenFull()
+        self.eat_write_advance('}')
+
         self.printCompileGeneral('</subRoutineBody>')
 
     # compile a var declaration
     def compileVarDec(self):
         self.printCompileGeneral('<varDec>')
+
         # 'var'
-        self._eat('var')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('var')
 
         # type
         assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
@@ -229,10 +229,7 @@ class CompilationEngine():
             self._advance()
 
         # ';'
-        self._eat(';')
-        self.printCompiledTokenFull()
-        self._advance()
-        
+        self.eat_write_advance(';')
         self.printCompileGeneral('</varDec>')
 
     # compile a sequences of statements
@@ -261,9 +258,7 @@ class CompilationEngine():
     def compileLet(self):
         self.printCompileGeneral('<letStatement>')
         # 'let'
-        self._eat('let')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('let')
 
         # varName
         assert self._getTokenLexicalType() == 'identifier'
@@ -275,9 +270,7 @@ class CompilationEngine():
         #
         
         # '='
-        self._eat('=')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('=')
 
         #
         # compile expression
@@ -290,53 +283,32 @@ class CompilationEngine():
         self.printCompileGeneral('<ifStatement>')
 
         # 'if'
-        self._eat('if')
-        self.printCompiledTokenFull()
-        self._advance()
-
+        self.eat_write_advance('if')
         # '('
-        self._eat('(')
-        self.printCompiledTokenFull()
-        self._advance()
-
+        self.eat_write_advance('(')
         #
         # expression
         #
-
         # ')'
-        self._eat(')')
-        self.printCompiledTokenFull()
-        self._advance()
-
+        self.eat_write_advance(')')
         # '{'
-        self._eat('{')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('{')
 
         # statements
         self.compileStatements()
 
         # '}'
-        self._eat('}')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('}')
 
         # optional else      
         if self._getTokenLexical() == 'else':
-            self._eat('else')
-            self.printCompiledTokenFull()
-            self._advance()
-
-            self._eat('{')
-            self.printCompiledTokenFull()
-            self._advance()
+            self.eat_write_advance('else')
+            self.eat_write_advance('{')
 
             # statements
             self.compileStatements()
 
-            self._eat('}')
-            self.printCompiledTokenFull()
-            self._advance()
+            self.eat_write_advance('}')
 
         self.printCompileGeneral('</ifStatement>')
 
@@ -346,36 +318,28 @@ class CompilationEngine():
         self.printCompileGeneral('<whileStatement>')
 
         # 'while'
-        self._eat('while')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('while')
 
         # '('
-        self._eat('(')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('(')
 
         #
         # expression
         #
 
         # ')'
-        self._eat(')')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance(')')
+
 
         # '{'
-        self._eat('{')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('{')
+
 
         # statements
         self.compileStatements()
 
         # '}'
-        self._eat('}')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('}')
 
         self.printCompileGeneral('</whileStatement>')
 
@@ -385,9 +349,7 @@ class CompilationEngine():
         self.printCompileGeneral('<doStatement>')
 
         # 'do'
-        self._eat('do')
-        self.printCompiledTokenFull()
-        self._advance()
+        self.eat_write_advance('do')
 
         #
         # subroutine call
@@ -398,17 +360,16 @@ class CompilationEngine():
     # compile a return statement
     def compileReturn(self):
         self.printCompileGeneral('<returnStatement>')
-        self._eat('return')
-        self.printCompiledTokenFull()
-        self._advance()
+
+        self.eat_write_advance('return')
+
 
         #
         # optional expression
         #
 
         # ';'
-        self._eat(';')
-        self.printCompiledTokenFull()
+        self.eat_write_advance(';')
         self.printCompileGeneral('</returnStatement>')
 
     # compile an expression
@@ -440,7 +401,7 @@ class CompilationEngine():
 
 if __name__ == "__main__":
 
-    cpe = CompilationEngine('./OutWhile.xml')
+    cpe = CompilationEngine('./Out.xml')
     print(cpe.tokenizedInputList)
     cpe.run()
     for line in cpe.result:

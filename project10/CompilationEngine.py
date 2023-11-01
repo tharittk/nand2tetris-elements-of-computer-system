@@ -62,7 +62,7 @@ class CompilationEngine():
         self.printCompiledTokenFull()
         self._advance()
 
-        #
+        # optional
         # class var Dec, subroutine Dec
         #
 
@@ -90,14 +90,23 @@ class CompilationEngine():
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
         self._advance()
+        
+        # optional next variable
+        while self._getTokenLexical() == ',':
+            # ','
+            self.printCompiledTokenFull()
+            self._advance()
 
-        #
-        # optional other ',' + varName*
-        #
+            # varName
+            assert self._getTokenLexicalType() == 'identifier'
+            self.printCompiledTokenFull()
+            self._advance()
+
 
         # ';'
         self._eat(';')
         self.printCompiledTokenFull()
+        self._advance()
         self.printCompileGeneral('<\classVarDec>')
 
     # compile a complete method, function, or constructor
@@ -123,51 +132,68 @@ class CompilationEngine():
         # '('
         self._eat('(')
         self.printCompiledTokenFull()
+        self._advance()
 
-        #
-        # ParameterList
-        #
+        # parameterList
+        self.compileParameterList()
 
-        # '('
+        # ')'
         self._eat(')')
         self.printCompiledTokenFull()
+        self._advance()
 
-        #
-        # SubRoutineBody
-        #
+        self.compileSubroutineBody()
 
         self.printCompileGeneral('<\subroutineDec>')
 
 
     # compile a (possibly empty) parameter list
-    # does not handle the enclosing parentheses tokens ( and )
     def compileParameterList(self):
         self.printCompileGeneral('<parameterList>')
 
-        # optional - all
+        if (self._getTokenLexical() in ['int', 'char', 'boolean']) or (self._getTokenLexicalType() == 'identifier'):
+            # type
+            self.printCompiledTokenFull()
+            self._advance()
+            # varName
+            assert self._getTokenLexicalType() == 'identifier'
+            self.printCompiledTokenFull()
+            self._advance()
 
-        # type
-        #assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
-        #self.printCompiledTokenFull()
-        #self._advance()
+            # optional next
+            while self._getTokenLexical() == ',':
+                # ','
+                self.printCompiledTokenFull()
+                self._advance()
 
-        # varName
-        #assert self._getTokenLexicalType() == 'identifier'
-        #self.printCompiledTokenFull()
-        #self._advance()
+                # type
+                assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
+                self.printCompiledTokenFull()
+                self._advance()
+                # varName
+                assert self._getTokenLexicalType() == 'identifier'
+                self.printCompiledTokenFull()
+                self._advance()
 
         self.printCompileGeneral('<\parameterList>')
 
     # compile a subroutine's body
     def compileSubroutineBody(self):
         self.printCompileGeneral('<subRoutineBody>')
+        
+        # '{'
         self._eat('{')
         self.printCompiledTokenFull()
+        self._advance()
 
-        #
+        # optional varDec
+        if self._getTokenLexical() == 'var':
+            self.compileVarDec()
+
         # statements
-        #
+        self.compileStatements()
 
+        # '}'
         self._eat('}')
         self.printCompiledTokenFull()
         self.printCompileGeneral('</subRoutineBody>')
@@ -178,6 +204,7 @@ class CompilationEngine():
         # 'var'
         self._eat('var')
         self.printCompiledTokenFull()
+        self._advance()
 
         # type
         assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
@@ -189,10 +216,23 @@ class CompilationEngine():
         self.printCompiledTokenFull()
         self._advance()
 
-        # optional ------
-        # while next is ','
 
+        # optional variable but same type
+        while self._getTokenLexical() == ',':
+            # ','
+            self.printCompiledTokenFull()
+            self._advance()
 
+            # varName
+            assert self._getTokenLexicalType() == 'identifier'
+            self.printCompiledTokenFull()
+            self._advance()
+
+        # ';'
+        self._eat(';')
+        self.printCompiledTokenFull()
+        self._advance()
+        
         self.printCompileGeneral('</varDec>')
 
     # compile a sequences of statements
@@ -365,7 +405,8 @@ class CompilationEngine():
         #
         # optional expression
         #
-        
+
+        # ';'
         self._eat(';')
         self.printCompiledTokenFull()
         self.printCompileGeneral('</returnStatement>')

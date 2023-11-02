@@ -55,7 +55,7 @@ class CompilationEngine():
 
         line = self._getCurrentTokenFull()
         self.result.append(line)
-        print("Passed:::", line)
+        #print("Passed:::", line)
 
     # compile a complete class
     def compileClass(self):
@@ -399,6 +399,7 @@ class CompilationEngine():
         #print('>>> in expression')
         self.printCompileGeneral('<expression>')
 
+        
         self.compileTerm()
 
         # (op term)
@@ -407,13 +408,13 @@ class CompilationEngine():
             self._advance()
             self.printCompiledTokenFull()
             # term
-            if self._getLookAheadLexical() == '(':
-                #print("THIS")
-                self.compileTerm()
+            #if self._getLookAheadLexical() == '(':
+            #    print("THIS")
+            #    self.compileTerm()
 
-            else:     
-                self._advance()
-                self.compileTerm()
+            #else:     
+            self._advance()
+            self.compileTerm()
 
 
 
@@ -516,11 +517,16 @@ class CompilationEngine():
 
 
         # ( expression )
-        if self._getLookAheadLexical() == '(':
+        #if self._getLookAheadLexical() == '(':
             #print('sub exp case')
+            #self.eat_write('(')
+            #self.compileExpression()
+            #print("HERE in 1")
+            #self.eat_write(')')
 
-            self.eat_write('(')
-
+        if self._getTokenLexical() == '(':
+            self.printCompiledTokenFull()
+            self._advance()
             self.compileExpression()
             self.eat_write(')')
 
@@ -565,3 +571,5 @@ if __name__ == "__main__":
     cpe.run()
     #for line in cpe.result:
     #s    print(line)
+
+

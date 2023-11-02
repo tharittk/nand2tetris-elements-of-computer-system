@@ -5,6 +5,24 @@ import sys, os
 if __name__ == '__main__':
     inputFile =sys.argv[1]
 
+    folderName = os.path.dirname(inputFile)
+    fileName = os.path.basename(inputFile)
+
+    outTokenizedFile = folderName + '/' + fileName[:-5] + 'T' + '.xml'
+    outXMLFile = folderName + '/' + fileName[:-5]  + '.xml'
+
+
+    tkn = Tokenizer(inputFile)
+    tkn.run()
+    tkn.outputting(outTokenizedFile)
+
+    cpe = CompilationEngine(tkn.result)
+    cpe.run()
+    cpe.outputting(outXMLFile)
+
+
+
+'''
     if inputFile != '.\Square\Square.jack':
 
         inputFiles = ['./ArrayTest/Main.jack', './ExpressionLessSquare/Main.jack',
@@ -41,10 +59,4 @@ if __name__ == '__main__':
         #with open('./compiled.xml', 'w') as f:
         #    for token in cpe.result:
         #        f.write(token + '\n')
-
-    else:
-        tkn = Tokenizer(inputFile)
-        tkn.run()
-
-        cpe = CompilationEngine(tkn.result)
-        cpe.run()
+'''

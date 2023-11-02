@@ -74,7 +74,7 @@ class CompilationEngine():
         #self._advance()
 
         # optional class var dec
-        if self._getLookAheadLexical() in  ['static', 'field']:
+        while self._getLookAheadLexical() in  ['static', 'field']:
             self._advance()
             self.compileClassVarDec()
 
@@ -125,16 +125,6 @@ class CompilationEngine():
             self.printCompiledTokenFull()
             #self._advance()
 
-        # optional variable but same type
-        #while self._getLookAheadLexical() == ',':
-            # ','
-        #    self._advance()
-        #    self.printCompiledTokenFull()
-        #    self._advance()
-
-            # varName
-        #    assert self._getTokenLexicalType() == 'identifier'
-        #    self.printCompiledTokenFull()
 
         # ';'
         self.eat_write(';')
@@ -163,8 +153,11 @@ class CompilationEngine():
         # '('
         self.eat_write('(')
         
+        #print(self._getLookAheadLexical())
         # parameterList
         self.compileParameterList()
+
+        #print('after param list')
 
         # ')'
         self.eat_write(')')
@@ -181,19 +174,21 @@ class CompilationEngine():
 
         self.printCompileGeneral('<parameterList>')
 
-        if (self._getTokenLexical() in ['int', 'char', 'boolean']) or (self._getTokenLexicalType() == 'identifier'):
+        if (self._getLookAheadLexical() in ['int', 'char', 'boolean']) or (self._getTokenLexicalType() == 'identifier'):
             # type
+            self._advance()
             self.printCompiledTokenFull()
             self._advance()
 
             # varName
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
-            self._advance()
+            #self._advance()
 
             # optional next
-            while self._getTokenLexical() == ',':
+            while self._getLookAheadLexical() == ',':
                 # ','
+                self._advance()
                 self.printCompiledTokenFull()
                 self._advance()
 
@@ -205,7 +200,6 @@ class CompilationEngine():
                 # varName
                 assert self._getTokenLexicalType() == 'identifier'
                 self.printCompiledTokenFull()
-                self._advance()
 
         self.printCompileGeneral('</parameterList>')
 
@@ -502,7 +496,7 @@ class CompilationEngine():
                 self.printCompiledTokenFull()
                 # '('
                 self.eat_write('(')
-                self._advance()
+                #self._advance()
 
                 # expressionList
                 self.compileExpressionList()
@@ -565,18 +559,20 @@ class CompilationEngine():
             #print('in look ahead')
             self._advance()
             self.compileExpression()
+
+            #print('first arg compile')
             #self._advance()
 
             # optional expression
-            while self._getTokenLexical() == ',':
+            while self._getLookAheadLexical() == ',':
                 # ','
-                self.printCompiledTokenFull()
                 self._advance()
+                self.printCompiledTokenFull()
 
+                self._advance()
                 # expression
                 self.compileExpression()
 
-                print('in multi')
 
         self.printCompileGeneral('</expressionList>')
         #print('<<< out expressionList')

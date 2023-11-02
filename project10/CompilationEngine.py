@@ -71,18 +71,26 @@ class CompilationEngine():
 
         # '{'
         self.eat_write('{')
-        self._advance()
+        #self._advance()
 
         # optional class var dec
-        if self._getTokenLexical() in  ['static', 'field']:
+        if self._getLookAheadLexical() in  ['static', 'field']:
+            self._advance()
             self.compileClassVarDec()
 
+        #print('bef', self._getCurrentTokenFull())
+        #self._advance()
+
         # optional subroutine dec
-        if self._getTokenLexical() in ['constructor', 'function', 'method']:
+        while self._getLookAheadLexical() in ['constructor', 'function', 'method']:
+            self._advance()
             self.compileSubroutine()
+            #print("Compile finished: ", self._getLookAheadLexical())
 
         # '}'
         self.eat_write('}')
+        print("CLOSING CLAS")
+
         self.printCompileGeneral('</class>')
 
 
@@ -103,20 +111,9 @@ class CompilationEngine():
         # varName
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
-        self._advance()
+        #self._advance()
         
         # optional next variable
-        while self._getTokenLexical() == ',':
-            # ','
-            self.printCompiledTokenFull()
-            self._advance()
-
-            # varName
-            assert self._getTokenLexicalType() == 'identifier'
-            self.printCompiledTokenFull()
-            self._advance()
-'''
-        # optional variable but same type
         while self._getLookAheadLexical() == ',':
             # ','
             self._advance()
@@ -126,7 +123,19 @@ class CompilationEngine():
             # varName
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
-'''
+            #self._advance()
+
+        # optional variable but same type
+        #while self._getLookAheadLexical() == ',':
+            # ','
+        #    self._advance()
+        #    self.printCompiledTokenFull()
+        #    self._advance()
+
+            # varName
+        #    assert self._getTokenLexicalType() == 'identifier'
+        #    self.printCompiledTokenFull()
+
         # ';'
         self.eat_write(';')
 
@@ -256,7 +265,8 @@ class CompilationEngine():
     def compileStatements(self):
         self.printCompileGeneral('<statements>')
 
-        print('in statements', self._getTokenLexical())
+        #print('in statements', self._getTokenLexical())
+
         # while there are next statements
         while self._getLookAheadLexical() in ['let', 'if', 'while', 'do' ,'return']:
             if self._getLookAheadLexical() == 'let':
@@ -268,6 +278,7 @@ class CompilationEngine():
             elif self._getLookAheadLexical() == 'do':
                 self.compileDo()
             elif self._getLookAheadLexical() == 'return':
+                #print('compile return')
                 self.compileReturn()
                 #break
 
@@ -332,26 +343,26 @@ class CompilationEngine():
         self.eat_write(')')
         # '{'
         self.eat_write('{')
-        self._advance()
+        #self._advance()
 
         # statements
         self.compileStatements()
 
         # '}'
         self.eat_write('}')
-        self._advance()
+        #self._advance()
 
         # optional else      
-        if self._getTokenLexical() == 'else':
+        if self._getLookAheadLexical() == 'else':
             self.eat_write('else')
             self.eat_write('{')
-            self._advance()
+            #self._advance()
 
             # statements
             self.compileStatements()
-
+            #print('after compile statement')
             self.eat_write('}')
-            self._advance()
+            #print('bracket closing else')
 
         self.printCompileGeneral('</ifStatement>')
 

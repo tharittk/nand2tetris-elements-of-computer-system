@@ -38,7 +38,6 @@ if __name__ == '__main__':
             cpe.outputting(outXMLFile)
 
 
-
         #with open('./compiled.xml', 'w') as f:
         #    for token in cpe.result:
         #        f.write(token + '\n')

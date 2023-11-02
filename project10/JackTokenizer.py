@@ -16,6 +16,7 @@ class Tokenizer():
         self.currentCharIdx = 0
         self.result = ['<tokens>']
         #self.currentTokenizedLine = ''
+
     def _read_input_file(self):
         with open(self.inputFile) as f:
             # process text file
@@ -33,7 +34,12 @@ class Tokenizer():
                     # Each character in line
                     for char in line:                        
                         self.charStream += char
-
+    
+    def outputting(self, outTokenizedFile):
+        with open(outTokenizedFile, 'w') as f:
+            for token in self.result:
+                f.write(token + '\n')
+        
     def hasMoreTokens(self):
         nchar = len(self.charStream)
         if self.currentCharIdx <= nchar - 1:
@@ -163,6 +169,8 @@ class Tokenizer():
                 #self.currentTokenizedLine = self.toPrint
 
         self.result.append('</tokens>')
+
+
 if __name__ == "__main__":
     import sys
     inputFile =sys.argv[1]

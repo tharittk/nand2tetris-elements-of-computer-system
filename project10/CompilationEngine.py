@@ -195,7 +195,7 @@ class CompilationEngine():
 
     # compile a subroutine's body
     def compileSubroutineBody(self):
-        self.printCompileGeneral('<subRoutineBody>')
+        self.printCompileGeneral('<subroutineBody>')
         
         self.eat_write('{')
 
@@ -209,7 +209,7 @@ class CompilationEngine():
         # '}'
         self.eat_write('}')
 
-        self.printCompileGeneral('</subRoutineBody>')
+        self.printCompileGeneral('</subroutineBody>')
 
     # compile a var declaration
     def compileVarDec(self):
@@ -412,7 +412,9 @@ class CompilationEngine():
     # with single look ahead
 
     def compileTerm(self):
-        self.printCompileGeneral('<term>')
+        previous = (self.tokenizedInputList[self.currentTokenIndex - 1]).split(" ")[1]
+        if previous != 'do':
+            self.printCompileGeneral('<term>')
 
         # integer
         if self._getTokenLexicalType() == 'integerConstant':
@@ -488,11 +490,9 @@ class CompilationEngine():
             self.printCompiledTokenFull()
 
             if self._getLookAheadLexical() == '(':
-                #print('sub exp case')
-                self.eat_write('(')
                 self._advance()
-                self.compileExpression()
-                self.eat_write(')')
+                self.compileTerm()
+                
             else:
                 self._advance()        
                 self.compileTerm()
@@ -506,7 +506,8 @@ class CompilationEngine():
             self.eat_write(')')
 
 
-        self.printCompileGeneral('</term>')
+        if previous != 'do':
+            self.printCompileGeneral('</term>')
 
     # compile a possibly empty comma separated list
     # of expressions. Return the number of 

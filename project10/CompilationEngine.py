@@ -49,7 +49,7 @@ class CompilationEngine():
     
     def printCompileGeneral(self, stringPrint):
         self.result.append(stringPrint)
-
+        #print("Passed:::", stringPrint)
 
     def printCompiledTokenFull(self):
 
@@ -71,25 +71,20 @@ class CompilationEngine():
 
         # '{'
         self.eat_write('{')
-        #self._advance()
 
         # optional class var dec
         while self._getLookAheadLexical() in  ['static', 'field']:
             self._advance()
             self.compileClassVarDec()
 
-        #print('bef', self._getCurrentTokenFull())
-        #self._advance()
-
         # optional subroutine dec
         while self._getLookAheadLexical() in ['constructor', 'function', 'method']:
             self._advance()
             self.compileSubroutine()
-            #print("Compile finished: ", self._getLookAheadLexical())
 
         # '}'
         self.eat_write('}')
-        print("CLOSING CLAS")
+        print("CLOSING CLASS")
 
         self.printCompileGeneral('</class>')
 
@@ -123,7 +118,6 @@ class CompilationEngine():
             # varName
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
-            #self._advance()
 
 
         # ';'
@@ -153,18 +147,14 @@ class CompilationEngine():
         # '('
         self.eat_write('(')
         
-        #print(self._getLookAheadLexical())
         # parameterList
         self.compileParameterList()
-
-        #print('after param list')
 
         # ')'
         self.eat_write(')')
 
         # subroutine body
         self.compileSubroutineBody()
-
 
         self.printCompileGeneral('</subroutineDec>')
 
@@ -183,7 +173,6 @@ class CompilationEngine():
             # varName
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
-            #self._advance()
 
             # optional next
             while self._getLookAheadLexical() == ',':
@@ -208,8 +197,6 @@ class CompilationEngine():
         self.printCompileGeneral('<subRoutineBody>')
         
         self.eat_write('{')
-
-        #print(self._getCurrentTokenFull())
 
         # optional varDec
         while self._getLookAheadLexical() == 'var':
@@ -259,8 +246,6 @@ class CompilationEngine():
     def compileStatements(self):
         self.printCompileGeneral('<statements>')
 
-        #print('in statements', self._getTokenLexical())
-
         # while there are next statements
         while self._getLookAheadLexical() in ['let', 'if', 'while', 'do' ,'return']:
             if self._getLookAheadLexical() == 'let':
@@ -272,14 +257,7 @@ class CompilationEngine():
             elif self._getLookAheadLexical() == 'do':
                 self.compileDo()
             elif self._getLookAheadLexical() == 'return':
-                #print('compile return')
                 self.compileReturn()
-                #break
-
-            #print(self._getLookAheadLexical())
-            
-            #print('after first statement', self._getTokenLexical())
-            #self._advance()
 
         self.printCompileGeneral('</statements>')
 
@@ -295,9 +273,7 @@ class CompilationEngine():
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
 
-        #
         # optional expression in case of array
-        #
         if self._getLookAheadLexical() == '[':
             # '['
             self.eat_write('[')
@@ -334,6 +310,7 @@ class CompilationEngine():
         # expression
         self.compileExpression()
 
+
         # ')'
         self.eat_write(')')
         # '{'
@@ -345,19 +322,14 @@ class CompilationEngine():
 
         # '}'
         self.eat_write('}')
-        #self._advance()
 
         # optional else      
         if self._getLookAheadLexical() == 'else':
             self.eat_write('else')
             self.eat_write('{')
-            #self._advance()
-
             # statements
             self.compileStatements()
-            #print('after compile statement')
             self.eat_write('}')
-            #print('bracket closing else')
 
         self.printCompileGeneral('</ifStatement>')
 
@@ -377,16 +349,12 @@ class CompilationEngine():
         # expression
         self.compileExpression()
 
-        #print('after compile exp in while')
-
         # ')'
         self.eat_write(')')
 
 
         # '{'
         self.eat_write('{')
-        #self._advance()
-
 
         # statements
         self.compileStatements()
@@ -395,8 +363,6 @@ class CompilationEngine():
         self.eat_write('}')
 
         self.printCompileGeneral('</whileStatement>')
-
-        #print('completeWhile')
 
 
     # compile a do statement
@@ -432,9 +398,9 @@ class CompilationEngine():
     def compileExpression(self):
         #print('>>> in expression')
         self.printCompileGeneral('<expression>')
+
         self.compileTerm()
 
-        #print('current', self._getTokenLexical())
         # (op term)
         if self._getLookAheadLexical() in ['+', '-', '*', '/', '&amp;', '|', '&lt;', '&gt;', '=' ]:
             # op
@@ -449,19 +415,18 @@ class CompilationEngine():
                 self._advance()
                 self.compileTerm()
 
+
+
         self.printCompileGeneral('</expression>')
         #print('<<< out expression')
-        #print('after out expression', self._getCurrentTokenFull())
-
 
     # compile a term
     # if current token is identifier,
     # must resolve into var, array, or subroutine call
     # with single look ahead
+
     def compileTerm(self):
         #print('>>> in term')
-        #print('current: ', self._getCurrentTokenFull())
-        #print('type: ', self._getTokenLexicalType())
         self.printCompileGeneral('<term>')
 
         # integer
@@ -472,13 +437,11 @@ class CompilationEngine():
         # string
         elif self._getTokenLexicalType() == 'stringConstant':
             self.printCompiledTokenFull()
-            #self._advance()
-            #print(self._getCurrentTokenFull(), 'after get string')
 
         # keyword constant
         elif self._getTokenLexical() in ['true', 'false', 'null', 'this']:
             self.printCompileGeneral('<keyword>{kw}</keyword>'.format(kw = self._getTokenLexical()))
-            #self._advance()
+
 
         # varName | varName[expression] | subroutineCall 
         elif self._getTokenLexicalType() == 'identifier':
@@ -489,7 +452,6 @@ class CompilationEngine():
                 # '['
                 self.eat_write('[')
                 self._advance()
-
                 # expression
                 self.compileExpression()
                 # ']'
@@ -525,7 +487,6 @@ class CompilationEngine():
                 self.eat_write('(')
                 # expressionList
                 self.compileExpressionList()
-                #print('current in expList', self._getCurrentTokenFull())
 
                 # ')'
                 self.eat_write(')')
@@ -536,20 +497,35 @@ class CompilationEngine():
                 self.printCompiledTokenFull()
 
 
-        # ( expression )
-        elif self._getLookAheadLexical() == '(':
-            #print('sub exp case')
-            self.eat_write('(')
-            self.compileExpression()
-            self.eat_write(')')
         
         # unaryOp
-        elif self._getTokenLexical() in ['-', '~'] and (self.tokenizedInputList[self.currentTokenIndex - 1]).split(" ")[1] == '=':
-            self.printCompileGeneral('<unaryOp>{unaryOp}</unaryOp>'.format(unaryOp = self._getTokenLexical()))
+        #elif self._getTokenLexical() in ['-', '~'] and (self.tokenizedInputList[self.currentTokenIndex - 1]).split(" ")[1] == '=':
+        elif self._getTokenLexical() in ['-', '~'] :
+
+            self.printCompiledTokenFull()
+
+            if self._getLookAheadLexical() == '(':
+                #print('sub exp case')
+                self.eat_write('(')
+                self._advance()
+                self.compileExpression()
+                self.eat_write(')')
+            else:
+                self._advance()        
+                self.compileTerm()
+
+
+        # ( expression )
+        if self._getLookAheadLexical() == '(':
+            #print('sub exp case')
+
+            self.eat_write('(')
+
+            self.compileExpression()
+            self.eat_write(')')
 
 
         self.printCompileGeneral('</term>')
-        #print('after out term', self._getCurrentTokenFull())
         #print('<<< out term')
 
 
@@ -563,12 +539,8 @@ class CompilationEngine():
         
         # empty
         if self._getLookAheadLexical() != ')':
-            #print('in look ahead')
             self._advance()
             self.compileExpression()
-
-            #print('first arg compile')
-            #self._advance()
 
             # optional expression
             while self._getLookAheadLexical() == ',':
@@ -582,8 +554,6 @@ class CompilationEngine():
 
 
         self.printCompileGeneral('</expressionList>')
-        #print('<<< out expressionList')
-        #print('current', self._getCurrentTokenFull())
 
     def run(self):
         self.compileClass()

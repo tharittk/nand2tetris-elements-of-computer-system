@@ -315,6 +315,7 @@ class CompilationEngine():
         self.compileExpression()
 
         # ';'
+        #print("finishing let ;")
         self.eat_write(';')
 
         self.printCompileGeneral('</letStatement>')
@@ -440,8 +441,13 @@ class CompilationEngine():
             self._advance()
             self.printCompiledTokenFull()
             # term
-            self._advance()
-            self.compileTerm()
+            if self._getLookAheadLexical() == '(':
+                #print("THIS")
+                self.compileTerm()
+
+            else:     
+                self._advance()
+                self.compileTerm()
 
         self.printCompileGeneral('</expression>')
         #print('<<< out expression')
@@ -457,7 +463,7 @@ class CompilationEngine():
         #print('current: ', self._getCurrentTokenFull())
         #print('type: ', self._getTokenLexicalType())
         self.printCompileGeneral('<term>')
-        
+
         # integer
         if self._getTokenLexicalType() == 'integerConstant':
             self.printCompiledTokenFull()
@@ -531,7 +537,8 @@ class CompilationEngine():
 
 
         # ( expression )
-        elif self._getTokenLexical() == '(':
+        elif self._getLookAheadLexical() == '(':
+            #print('sub exp case')
             self.eat_write('(')
             self.compileExpression()
             self.eat_write(')')

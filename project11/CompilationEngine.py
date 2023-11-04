@@ -473,15 +473,23 @@ class CompilationEngine():
 
         self.printCompileGeneral('</doStatement>')
 
-    # compile a return statement
+    # (X) compile a return statement
     def compileReturn(self):
         self.printCompileGeneral('<returnStatement>')
         self.eat_write('return')
+        needDummy = True
 
         if self._getLookAheadLexical() != ';':
             self._advance()
             self.compileExpression()
-        
+            needDummy = False
+
+        if needDummy:
+            self.VMWriter.writePush('constant', 0)
+            self.VMWriter.writeReturn()
+            self.VMWriter.writePop('temp', 0)
+        else:
+            self.VMWriter.writeReturn()
         # ';'
         self.eat_write(';')
         self.printCompileGeneral('</returnStatement>')

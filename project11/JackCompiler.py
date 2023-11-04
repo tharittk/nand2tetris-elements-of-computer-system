@@ -11,11 +11,20 @@ if __name__ == '__main__':
     
     # single file
     if not os.path.isdir(inputName):
-        pass
+
+        outTokenizedFile = inputName[:-5] + 'T' + '.xml'
+        outVMFile = inputName[:-5]  + '.vm'
+
+        # output xml file - tokenized
+        tkn = Tokenizer(inputName)
+        tkn.run()
+        tkn.outputting(outTokenizedFile)
+
+        # output vm file
+
 
     # a folder
     else:
-
 
         for fileName in os.listdir(inputName):
 

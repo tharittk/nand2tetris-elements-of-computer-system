@@ -1,4 +1,6 @@
 # CompilationEngine
+from SymbolTable import *
+from VMWriter import *
 
 class CompilationEngine():
     def __init__(self, xmlFile):
@@ -8,6 +10,12 @@ class CompilationEngine():
         self.currentTokenIndex = -1 # not yet look at any token
         self.result = []
         
+        # VM compilation
+        self.className = ''
+        self.classSymbolTable = SymbolTable()
+        self.subRoutineSymbolTable = SymbolTable()
+        self.VMWriter = VMWriter('./test.vm')
+
     # during testing
     def _read_tokenized_xml(self, xml_file):
         xmlLines = []
@@ -62,6 +70,32 @@ class CompilationEngine():
         self.result.append(line)
         #print("Passed:::", line)
 
+    def _getVarTypeFromTables(self, varName):
+        if varName in self.subRoutineSymbolTable.keys():
+            return self.subRoutineSymbolTable.typeOf(varName)
+        elif varName in self.classSymbolTable.keys():
+            return self.classSymbolTable.typeOf(varName)
+        else:
+            return None # the name is subroutine name or class name
+    
+    def _getVarKindFromTables(self, varName):
+        if varName in self.subRoutineSymbolTable.keys():
+            return self.subRoutineSymbolTable.kindOf(varName)
+        elif varName in self.classSymbolTable.keys():
+            return self.classSymbolTable.kindOf(varName)
+        else:
+            return None # the name is subroutine name or class name
+  
+    def _getVarIndexFromTables(self, varName):
+        if varName in self.subRoutineSymbolTable.keys():
+            return self.subRoutineSymbolTable.indexOf(varName)
+        elif varName in self.classSymbolTable.keys():
+            return self.classSymbolTable.indexOf(varName)
+        else:
+            return None # the name is subroutine name or class name          
+
+
+
     # compile a complete class
     def compileClass(self):
 
@@ -73,6 +107,8 @@ class CompilationEngine():
         # className
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
+
+        self.className = self._getTokenLexical()
 
         # '{'
         self.eat_write('{')
@@ -92,25 +128,37 @@ class CompilationEngine():
 
         self.printCompileGeneral('</class>')
 
-    # compile a static variable or a field decoration
+    # (X) compile a static variable or a field decoration
     def compileClassVarDec(self):
+
+        # Symbol table entry
+
+
 
         self.printCompileGeneral('<classVarDec>')
         # (static | field)
         assert self._getTokenLexical() in ['static', 'field']
         self.printCompiledTokenFull()
+        varKind = self._getTokenLexical()
+
         self._advance()
 
         # type
         assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
+        varType = self._getTokenLexical()
         self._advance()
 
         # varName
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
-        #self._advance()
+        varName = self._getTokenLexical()
         
+        # add to symboltable
+        self.classSymbolTable.define(varName, varType, varKind)
+
+
+
         # optional next variable
         while self._getLookAheadLexical() == ',':
             # ','
@@ -122,6 +170,11 @@ class CompilationEngine():
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
 
+            # same kind and type but change name
+            varName = self._getTokenLexical()
+            self.classSymbolTable.define(varName, varType, varKind)
+
+
         # ';'
         self.eat_write(';')
         self.printCompileGeneral('</classVarDec>')
@@ -129,21 +182,41 @@ class CompilationEngine():
     # compile a complete method, function, or constructor
     def compileSubroutine(self):
 
+        funcType = ''
+        funcReturnType = ''
+        funcName = ''
+
         self.printCompileGeneral('<subroutineDec>')
+
 
         # (constructor | function | method)
         assert self._getTokenLexical() in ['constructor', 'function', 'method']
         self.printCompiledTokenFull()
+    
+        funcType = self._getTokenLexical()
+
         self._advance()
+
+    
+
+        # reset table
+        self.subRoutineSymbolTable.reset()
+
+
 
         # ('void' | type)
         assert (self._getTokenLexical() in ['void','int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier' 
         self.printCompiledTokenFull()
+        
+        funcReturnType = self._getTokenLexical()
+        
         self._advance()
 
         # subRoutineName
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
+
+        funcName = self.className + self._getTokenLexical()
 
         # '('
         self.eat_write('(')
@@ -211,9 +284,13 @@ class CompilationEngine():
 
         self.printCompileGeneral('</subroutineBody>')
 
-    # compile a var declaration
+    # (X) compile a var declaration
     def compileVarDec(self):
         self.printCompileGeneral('<varDec>')
+
+        # Symbol table entry
+
+        varKind = 'local'
 
         # 'var'
         self.eat_write('var')
@@ -222,11 +299,19 @@ class CompilationEngine():
         # type
         assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
+        
+        varType = self._getTokenLexical()
+    
+        
         self._advance()
 
         # varName
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
+        varName = self._getTokenLexical()
+
+        # add to symboltable
+        self.subRoutineSymbolTable.define(varName, varType, varKind)
 
         # optional variable but same type
         while self._getLookAheadLexical() == ',':
@@ -238,6 +323,8 @@ class CompilationEngine():
             # varName
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
+            varName = self._getTokenLexical()
+            self.subRoutineSymbolTable.define(varName, varType, varKind)
 
         # ';'
         self.eat_write(';')
@@ -262,8 +349,9 @@ class CompilationEngine():
 
         self.printCompileGeneral('</statements>')
         
-    # compile a let statement
+    # (X) compile a let statement
     def compileLet(self):
+        varName = ''
         self.printCompileGeneral('<letStatement>')
         # 'let'
         self.eat_write('let')
@@ -272,6 +360,12 @@ class CompilationEngine():
         # varName
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
+        
+        
+        varName = self._getTokenLexical()
+        varType = self._getVarTypeFromTables(varName)
+        varIndex = self._getVarIndexFromTables(varName)
+        varKind = self._getVarKindFromTables(varName)
 
         # optional expression in case of array
         if self._getLookAheadLexical() == '[':
@@ -289,6 +383,9 @@ class CompilationEngine():
 
         # compile expression
         self.compileExpression()
+
+        # write pop
+        self.VMWriter.writePop(varKind, varIndex)
 
         # ';'
         #print("finishing let ;")
@@ -419,10 +516,14 @@ class CompilationEngine():
         # integer
         if self._getTokenLexicalType() == 'integerConstant':
             self.printCompiledTokenFull()
+            # push constant INT
+            self.VMWriter.writePush('constant', self._getTokenLexical())
+            
 
         # string
         elif self._getTokenLexicalType() == 'stringConstant':
             self.printCompiledTokenFull()
+            #self.VMWriter.writeCall('String.new()', )
 
         # keyword constant
         elif self._getTokenLexical() in ['true', 'false', 'null', 'this']:

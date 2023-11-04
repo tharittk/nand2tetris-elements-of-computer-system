@@ -14,7 +14,7 @@ class SymbolTable():
         self.table[entryName] = {}
         self.table[entryName]['type'] = entryType
         self.table[entryName]['kind'] = entryKind
-        self.table[entryName]['index'] = self.varCount(entryKind)
+        self.table[entryName]['index'] = self.varCount(entryKind) - 1
     
     # return the number of variable of a given kind
     def varCount(self, kind):

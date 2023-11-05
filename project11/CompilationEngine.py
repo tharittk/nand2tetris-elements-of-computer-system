@@ -226,6 +226,7 @@ class CompilationEngine():
         elif self.currentSubroutineType == 'function':
             pass
 
+        print('compiling', self.currentSubroutineName)
 
         # '('
         self.eat_write('(')
@@ -247,6 +248,7 @@ class CompilationEngine():
     def compileParameterList(self):
 
         self.printCompileGeneral('<parameterList>')
+        #print('>', self._getLookAheadLexical() )
         if (self._getLookAheadLexical() in ['int', 'char', 'boolean']) or (self._getTokenLexicalType() == 'identifier') or (self._getLookAheadLexicalType() == 'identifier'):
             varKind = 'argument'
             # type
@@ -261,7 +263,7 @@ class CompilationEngine():
             varName = self._getTokenLexical()
 
             self.subRoutineSymbolTable.define(varName, varType, varKind)
-
+            #print(varName, self.subRoutineSymbolTable.table[varName])
             # optional next
             while self._getLookAheadLexical() == ',':
                 # ','
@@ -281,6 +283,7 @@ class CompilationEngine():
                 self.printCompiledTokenFull()
                 varName = self._getTokenLexical()
                 self.subRoutineSymbolTable.define(varName, varType, varKind)
+                #print(varName, self.subRoutineSymbolTable.table[varName])
 
         self.printCompileGeneral('</parameterList>')
 
@@ -289,14 +292,16 @@ class CompilationEngine():
         self.printCompileGeneral('<subroutineBody>')
         
         self.eat_write('{')
-
         # optional varDec
         while self._getLookAheadLexical() == 'var':
             self.compileVarDec()
+        
+    
 
-
-        nVars = self.subRoutineSymbolTable.varCount('var')
+        nVars = self.subRoutineSymbolTable.varCount('local')
         nArgs = self.subRoutineSymbolTable.varCount('argument')
+
+        print('nVars, ', nVars, 'nArgs', nArgs)
 
         if self.currentSubroutineType == 'method':
             self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
@@ -346,7 +351,9 @@ class CompilationEngine():
 
         # add to symboltable
         self.subRoutineSymbolTable.define(varName, varType, varKind)
-
+        #print('adding var: ', varName)
+        #print(varName, self.subRoutineSymbolTable.table[varName])
+        #print('Next is', self._getLookAheadLexical())
         # optional variable but same type
         while self._getLookAheadLexical() == ',':
             # ','
@@ -359,6 +366,8 @@ class CompilationEngine():
             self.printCompiledTokenFull()
             varName = self._getTokenLexical()
             self.subRoutineSymbolTable.define(varName, varType, varKind)
+            
+            #print(varName, self.subRoutineSymbolTable.table[varName])
 
         # ';'
         self.eat_write(';')
@@ -491,7 +500,7 @@ class CompilationEngine():
     def compileWhile(self):
         uniqNum = self.currentTokenIndex
         self.printCompileGeneral('<whileStatement>')
-        self.VMWriter.writeLabel('INHWILE.{uniq}'.format(uniq=uniqNum))
+        self.VMWriter.writeLabel('INWHILE.{uniq}'.format(uniq=uniqNum))
 
         # 'while'
         self.eat_write('while')
@@ -717,7 +726,10 @@ class CompilationEngine():
                 # ')'
                 self.eat_write(')')
 
-                self.VMWriter.writeCall(classNameVarName+'.'+subroutineName, nArgs+1)
+                if varKind == None: # OS
+                    self.VMWriter.writeCall(classNameVarName+'.'+subroutineName, nArgs)
+                else:
+                    self.VMWriter.writeCall(classNameVarName+'.'+subroutineName, nArgs+1)
 
             # (X) varName
             else:

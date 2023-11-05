@@ -16,6 +16,9 @@ class CompilationEngine():
         self.subRoutineSymbolTable = SymbolTable()
         self.VMWriter = VMWriter('./test.vm')
 
+        self.currentSubroutineName = ''
+        self.currentSubroutineType = ''
+
     # during testing
     def _read_tokenized_xml(self, xml_file):
         xmlLines = []
@@ -96,7 +99,7 @@ class CompilationEngine():
 
 
 
-    # compile a complete class
+    # (X) compile a complete class
     def compileClass(self):
 
         self.printCompileGeneral('<class>')
@@ -132,8 +135,6 @@ class CompilationEngine():
     def compileClassVarDec(self):
 
         # Symbol table entry
-
-
 
         self.printCompileGeneral('<classVarDec>')
         # (static | field)
@@ -182,33 +183,26 @@ class CompilationEngine():
     # compile a complete method, function, or constructor
     def compileSubroutine(self):
 
-        funcType = ''
-        funcReturnType = ''
-        funcName = ''
 
         self.printCompileGeneral('<subroutineDec>')
-
+        # reset table    
+        self.subRoutineSymbolTable.reset()
+        self.currentSubroutineName = ''
+        self.currentSubroutineType = ''
 
         # (constructor | function | method)
         assert self._getTokenLexical() in ['constructor', 'function', 'method']
         self.printCompiledTokenFull()
-    
-        funcType = self._getTokenLexical()
+
+        self.currentSubroutineType = self._getTokenLexical()
 
         self._advance()
-
-    
-
-        # reset table
-        self.subRoutineSymbolTable.reset()
-
-
 
         # ('void' | type)
         assert (self._getTokenLexical() in ['void','int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier' 
         self.printCompiledTokenFull()
         
-        funcReturnType = self._getTokenLexical()
+        #funcReturnType = self._getTokenLexical()
         
         self._advance()
 
@@ -216,37 +210,55 @@ class CompilationEngine():
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
 
-        funcName = self.className + self._getTokenLexical()
+        self.currentSubroutineName = self.className + self._getTokenLexical()
+
+
+        if self.currentSubroutineType == 'constructor':
+            pass
+        elif self.currentSubroutineType == 'method':
+            # add self i.e. this
+            self.subRoutineSymbolTable.define('this', self.className ,'argument')
+        
+        elif self.currentSubroutineType == 'function':
+            pass
+
 
         # '('
         self.eat_write('(')
         
-        # parameterList
+        # parameterList - nArgs
         self.compileParameterList()
 
         # ')'
         self.eat_write(')')
 
-        # subroutine body
+        # subroutine body - nVars
+
         self.compileSubroutineBody()
 
         self.printCompileGeneral('</subroutineDec>')
 
 
-    # compile a (possibly empty) parameter list
+    # (X) compile a (possibly empty) parameter list
     def compileParameterList(self):
 
         self.printCompileGeneral('<parameterList>')
-
+        
         if (self._getLookAheadLexical() in ['int', 'char', 'boolean']) or (self._getTokenLexicalType() == 'identifier'):
+            
+            varKind = 'argument'
             # type
             self._advance()
             self.printCompiledTokenFull()
+            varType = self._getTokenLexical()
             self._advance()
 
             # varName
             assert self._getTokenLexicalType() == 'identifier'
             self.printCompiledTokenFull()
+            varName = self._getTokenLexical()
+
+            self.subRoutineSymbolTable.define(varName, varType, varKind)
 
             # optional next
             while self._getLookAheadLexical() == ',':
@@ -258,15 +270,19 @@ class CompilationEngine():
                 # type
                 assert (self._getTokenLexical() in ['int', 'char', 'boolean']) or self._getTokenLexicalType() == 'identifier'
                 self.printCompiledTokenFull()
+                varType = self._getTokenLexical()
+
                 self._advance()
 
                 # varName
                 assert self._getTokenLexicalType() == 'identifier'
                 self.printCompiledTokenFull()
+                varName = self._getTokenLexical()
+                self.subRoutineSymbolTable.define(varName, varType, varKind)
 
         self.printCompileGeneral('</parameterList>')
 
-    # compile a subroutine's body
+    # (X) compile a subroutine's body
     def compileSubroutineBody(self):
         self.printCompileGeneral('<subroutineBody>')
         
@@ -275,6 +291,22 @@ class CompilationEngine():
         # optional varDec
         while self._getLookAheadLexical() == 'var':
             self.compileVarDec()
+
+
+        nVars = self.subRoutineSymbolTable.table.varCount('var')
+        nArgs = self.subRoutineSymbolTable.table.varCount('argument')
+
+        if self.currentSubroutineType == 'method':
+            self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
+            self.VMWriter.writePush('argument', 0)
+            self.VMWriter.writePop('pointer', 0)
+        elif self.currentSubroutineType == 'constructor':
+            self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
+            self.VMWriter.writePush('constant {n}'.format(n = nArgs))
+            self.VMWriter.writeCall('Memory.alloc 1')
+            self.VMWriter.writePop('pointer 0')
+        elif self.currentSubroutineType == 'function':
+            self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
 
         # statements
         self.compileStatements()

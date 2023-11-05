@@ -7,7 +7,7 @@ class VMWriter():
         self.outputName = outputFileName
 
     def _open_and_write(self, toWrite):
-        with open(self.outputName, 'w') as f:
+        with open(self.outputName, 'a') as f:
             f.write(toWrite + '\n')      
 
     # write VM push command
@@ -42,6 +42,7 @@ class VMWriter():
 
     # write VM go-to command
     def writeGoto(self, labelName):
+
         toWrite = '''
                     goto {labelName}
                 '''.format(labelName = labelName)
@@ -50,6 +51,7 @@ class VMWriter():
 
     # write VM if-goto command
     def writeIf(self, labelName):
+
         toWrite = '''
                     if-goto {labelName}
                 '''.format(labelName = labelName)

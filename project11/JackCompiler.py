@@ -22,6 +22,9 @@ if __name__ == '__main__':
 
         # output vm file
 
+        cpe = CompilationEngine(tkn.result)
+        cpe.run()
+        #cpe.outputting(outXMLFile)
 
     # a folder
     else:
@@ -40,6 +43,7 @@ if __name__ == '__main__':
 
                 # output vm file
 
-
+                cpe = CompilationEngine(tkn.result)
+                cpe.run()
 
 

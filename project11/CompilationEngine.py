@@ -71,7 +71,7 @@ class CompilationEngine():
         #print("Passed:::", line)
 
     def _getVarTypeFromTables(self, varName):
-        if varName in self.subRoutineSymbolTable.keys():
+        if varName in self.subRoutineSymbolTable.table.keys():
             return self.subRoutineSymbolTable.typeOf(varName)
         elif varName in self.classSymbolTable.keys():
             return self.classSymbolTable.typeOf(varName)
@@ -79,7 +79,7 @@ class CompilationEngine():
             return None # the name is subroutine name or class name
     
     def _getVarKindFromTables(self, varName):
-        if varName in self.subRoutineSymbolTable.keys():
+        if varName in self.subRoutineSymbolTable.table.keys():
             return self.subRoutineSymbolTable.kindOf(varName)
         elif varName in self.classSymbolTable.keys():
             return self.classSymbolTable.kindOf(varName)
@@ -87,7 +87,7 @@ class CompilationEngine():
             return None # the name is subroutine name or class name
   
     def _getVarIndexFromTables(self, varName):
-        if varName in self.subRoutineSymbolTable.keys():
+        if varName in self.subRoutineSymbolTable.table.keys():
             return self.subRoutineSymbolTable.indexOf(varName)
         elif varName in self.classSymbolTable.keys():
             return self.classSymbolTable.indexOf(varName)
@@ -330,7 +330,7 @@ class CompilationEngine():
         self.eat_write(';')
         self.printCompileGeneral('</varDec>')
 
-    # compile a sequences of statements
+    # (X) compile a sequences of statements
     def compileStatements(self):
         self.printCompileGeneral('<statements>')
 
@@ -396,7 +396,7 @@ class CompilationEngine():
     # (X) compile an if with possibly else clause
     def compileIf(self):
         self.printCompileGeneral('<ifStatement>')
-        uniqNum = self.currentTokenIndex()
+        uniqNum = self.currentTokenIndex
 
         # 'if'
         self.eat_write('if')
@@ -442,7 +442,7 @@ class CompilationEngine():
 
     # (X) compile a while statement
     def compileWhile(self):
-        uniqNum = self.currentTokenIndex()
+        uniqNum = self.currentTokenIndex
         self.printCompileGeneral('<whileStatement>')
         self.VMWriter.writeLabel('INHWILE.{uniq}'.format(uniq=uniqNum))
 

@@ -384,7 +384,7 @@ class CompilationEngine():
         # compile expression
         self.compileExpression()
 
-        # write pop
+        # write pop after expression
         self.VMWriter.writePop(varKind, varIndex)
 
         # ';'
@@ -393,45 +393,58 @@ class CompilationEngine():
 
         self.printCompileGeneral('</letStatement>')
 
-    # compile an if with possibly else clause
+    # (X) compile an if with possibly else clause
     def compileIf(self):
         self.printCompileGeneral('<ifStatement>')
+        uniqNum = self.currentTokenIndex()
 
         # 'if'
         self.eat_write('if')
         # '('
         self.eat_write('(')
         self._advance()
-        
         # expression
         self.compileExpression()
-
         # ')'
         self.eat_write(')')
+
+        # write VM
+        self.VMWriter.writeArithmatic('not')
+        self.VMWriter.writeIf('ELSE.{uniq}'.format(uniq=uniqNum))
+
         # '{'
         self.eat_write('{')
-        #self._advance()
 
         # statements
         self.compileStatements()
 
+        self.VMWriter.writeGoto('CONT.{uniq}'.format(uniq=uniqNum))
+ 
         # '}'
         self.eat_write('}')
 
-        # optional else      
+        # optional else
+
+        self.VMWriter.writeLabel('ELSE.{uniq}'.format(uniq=uniqNum))# will be empty if no else, just con't
+
         if self._getLookAheadLexical() == 'else':
             self.eat_write('else')
             self.eat_write('{')
             # statements
             self.compileStatements()
             self.eat_write('}')
+        
+
+        # CONT label here
+        self.VMWriter.writeLabel('CONT.{uniq}'.format(uniq=uniqNum))
 
         self.printCompileGeneral('</ifStatement>')
 
-    # compile a while statement
+    # (X) compile a while statement
     def compileWhile(self):
-
+        uniqNum = self.currentTokenIndex()
         self.printCompileGeneral('<whileStatement>')
+        self.VMWriter.writeLabel('INHWILE.{uniq}'.format(uniq=uniqNum))
 
         # 'while'
         self.eat_write('while')
@@ -445,20 +458,24 @@ class CompilationEngine():
 
         # ')'
         self.eat_write(')')
+        self.VMWriter.writeArithmatic('not')
+        self.VMWriter.writeIf('OUTWHILE.{uniq}'.format(uniq=uniqNum))
 
         # '{'
         self.eat_write('{')
 
         # statements
         self.compileStatements()
+        self.VMWriter.writeGoto('INWHILE.{uniq}'.format(uniq=uniqNum))
+
 
         # '}'
         self.eat_write('}')
+        self.VMWriter.writeLabel('OUTWHILE.{uniq}'.format(uniq=uniqNum))
 
         self.printCompileGeneral('</whileStatement>')
 
-
-    # compile a do statement
+    # (X) compile a do statement
     def compileDo(self):
         self.printCompileGeneral('<doStatement>')
 
@@ -470,6 +487,9 @@ class CompilationEngine():
         self.compileTerm()
 
         self.eat_write(';')
+
+        # needDummy case
+        self.VMWriter.writePop('temp', 0)
 
         self.printCompileGeneral('</doStatement>')
 
@@ -487,7 +507,6 @@ class CompilationEngine():
         if needDummy:
             self.VMWriter.writePush('constant', 0)
             self.VMWriter.writeReturn()
-            self.VMWriter.writePop('temp', 0)
         else:
             self.VMWriter.writeReturn()
         # ';'

@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
                 # output vm file
 
-                cpe = CompilationEngine(tkn.result)
+                cpe = CompilationEngine(tkn.result, outVMFile)
                 cpe.run()
 
 

@@ -3,7 +3,7 @@ from SymbolTable import *
 from VMWriter import *
 
 class CompilationEngine():
-    def __init__(self, xmlFile):
+    def __init__(self, xmlFile, outputFileName):
         self.tokenizedInputList = xmlFile[1:-1] #exclude[<token>]
         #self.tokenizedInputList = self._read_tokenized_xml(xmlFile)[1:-1]
         self.currentToken = ''
@@ -14,7 +14,7 @@ class CompilationEngine():
         self.className = ''
         self.classSymbolTable = SymbolTable()
         self.subRoutineSymbolTable = SymbolTable()
-        self.VMWriter = VMWriter('./test.vm')
+        self.VMWriter = VMWriter(outputFileName)
 
         self.currentSubroutineName = ''
         self.currentSubroutineType = ''
@@ -59,7 +59,11 @@ class CompilationEngine():
         tokenAhead = self.tokenizedInputList[self.currentTokenIndex + 1]
         stringToken = tokenAhead.split(" ")[1]
         return stringToken
-    
+
+    def _getLookAheadLexicalType(self):
+        tokenAhead = self.tokenizedInputList[self.currentTokenIndex + 1]
+        return  tokenAhead.split(">")[0].split("<")[1]
+
     def _getTokenLexicalType(self):
         return  self.currentToken.split(">")[0].split("<")[1]
     
@@ -243,9 +247,7 @@ class CompilationEngine():
     def compileParameterList(self):
 
         self.printCompileGeneral('<parameterList>')
-        
-        if (self._getLookAheadLexical() in ['int', 'char', 'boolean']) or (self._getTokenLexicalType() == 'identifier'):
-            
+        if (self._getLookAheadLexical() in ['int', 'char', 'boolean']) or (self._getTokenLexicalType() == 'identifier') or (self._getLookAheadLexicalType() == 'identifier'):
             varKind = 'argument'
             # type
             self._advance()
@@ -302,9 +304,9 @@ class CompilationEngine():
             self.VMWriter.writePop('pointer', 0)
         elif self.currentSubroutineType == 'constructor':
             self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
-            self.VMWriter.writePush('constant {n}'.format(n = nArgs))
-            self.VMWriter.writeCall('Memory.alloc 1')
-            self.VMWriter.writePop('pointer 0')
+            self.VMWriter.writePush('constant', nArgs)
+            self.VMWriter.writeCall('Memory.alloc', 1)
+            self.VMWriter.writePop('pointer', 0)
         elif self.currentSubroutineType == 'function':
             self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
 
@@ -722,7 +724,7 @@ class CompilationEngine():
                 varName = self._getTokenLexical()
                 varKind = self._getVarKindFromTables(varName)
                 varIndex = self._getVarIndexFromTables(varName)
-                
+                #print(varName)
                 self.VMWriter.writePush(varKind, varIndex )
 
                 self.printCompiledTokenFull()

@@ -59,19 +59,58 @@ class Tokenizer():
         else:
             self.currentToken = ''
             # accumulate character until becomes a token
-            while ((currentChar not in self.SYMBOL) and (currentChar != ' ')):
-                self.currentToken += currentChar
-                self.currentCharIdx += 1
-                currentChar = self.charStream[self.currentCharIdx]
+            #while ((currentChar not in self.SYMBOL) and (currentChar != ' ')):
+            #while (currentChar != ' '):
 
-                # hit white space while in quotation
-                if self.currentToken[0] == '"' and currentChar == ' ':
+            #    if (currentChar in self.SYMBOL) and self.currentToken[0] != '"':
+            #        break
+
+            if currentChar == '"':
+                while True:
                     self.currentToken += currentChar
                     self.currentCharIdx += 1
                     currentChar = self.charStream[self.currentCharIdx]
-                
-                if self.currentToken[0] == '"' and self.currentToken[-1] == '"' and len(self.currentToken) >= 2:
-                    break
+
+                    if currentChar == '"':
+                        self.currentToken += currentChar
+                        self.currentCharIdx += 1
+                        currentChar = self.charStream[self.currentCharIdx]
+                        break
+
+            else:
+
+                while ((currentChar not in self.SYMBOL) and (currentChar != ' ')):
+
+                    self.currentToken += currentChar
+                    self.currentCharIdx += 1
+                    currentChar = self.charStream[self.currentCharIdx]
+
+                    # hit white space while in quotation
+
+                    #if self.currentToken[0] == '"':
+                    #    while (currentChar in self.SYMBOL) or currentChar == ' ':
+                    #        self.currentToken += currentChar
+                    #        self.currentCharIdx += 1
+                    #        currentChar = self.charStream[self.currentCharIdx]
+
+                    if self.currentToken[0] == '"' and currentChar == ' ':
+                        self.currentToken += currentChar
+                        self.currentCharIdx += 1
+                        currentChar = self.charStream[self.currentCharIdx]
+                    
+                    if self.currentToken[0] == '"' and self.currentToken[-1] == '"' and len(self.currentToken) >= 2:
+                        break
+
+                    # hit symbol  while in quotation - safe to go
+                    #if self.currentToken[0] == '"' and (currentChar in self.SYMBOL):
+                    #    self.currentToken += currentChar
+                    #    self.currentCharIdx += 1
+                    #    currentChar = self.charStream[self.currentCharIdx]
+
+                    #if self.currentToken[0] == '"' and currentChar == ' ':
+                    #    self.currentToken += currentChar
+                    #    self.currentCharIdx += 1
+                    #    currentChar = self.charStream[self.currentCharIdx]
 
             # no appending since '' + " " shall not be accounted
             if self.currentToken != '':
@@ -88,6 +127,7 @@ class Tokenizer():
         elif self.currentToken in self.SYMBOL:
             return 'SYMBOL'
         else:
+            #print(self.currentToken)
             if self.currentToken[0] == '"' and self.currentToken[-1] == '"':
                 return 'STRING_CONST'
             elif self.currentToken.isnumeric():

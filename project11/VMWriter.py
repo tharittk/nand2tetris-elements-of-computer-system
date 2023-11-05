@@ -28,7 +28,7 @@ class VMWriter():
 
     # write VM arithmatic command
     def writeArithmatic(self, command):
-
+        
         self._open_and_write(command.lower())
 
             

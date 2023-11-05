@@ -1,0 +1,132 @@
+
+                    function Main.main 0
+                
+
+                    push constant 3
+                
+
+                    call String.new 1
+                
+
+                    call Keyboard.readInt 2
+                
+
+                    pop local 1
+                
+
+                    push local 1
+                
+
+                    call Array.new 2
+                
+
+                    pop local 0
+                
+
+                    push constant 0
+                
+
+                    pop local 2
+                
+
+                    label INHWILE.47
+                
+
+                    push local 2
+                
+
+                    push local 1
+                
+not
+
+                    if-goto OUTWHILE.47
+                
+
+                    push local 0
+                
+
+                    push local 2
+                
+add
+
+                    push constant 5
+                
+
+                    call String.new 1
+                
+
+                    call Keyboard.readInt 2
+                
+
+                    pop temp 0
+                
+
+                    pop pointer 1
+                
+
+                    push temp 0
+                
+
+                    pop that 0
+                
+
+                    push local 3
+                
+
+                    push local 0
+                
+
+                    push local 2
+                
+add
+add
+
+                    pop local 3
+                
+
+                    push local 2
+                
+
+                    push constant 1
+                
+add
+
+                    pop local 2
+                
+
+                    goto INWHILE.47
+                
+
+                    label OUTWHILE.47
+                
+
+                    push constant 3
+                
+
+                    call String.new 1
+                
+
+                    call Output.printString 2
+                
+
+                    pop temp 0
+                
+
+                    push local 3
+                
+
+                    push local 1
+                
+
+                    call Math.divide 2
+                
+
+                    call Output.printInt 2
+                
+
+                    pop temp 0
+                
+
+                    push constant 0
+                
+return

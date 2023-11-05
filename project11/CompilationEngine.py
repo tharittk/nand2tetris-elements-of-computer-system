@@ -76,7 +76,7 @@ class CompilationEngine():
     def _getVarTypeFromTables(self, varName):
         if varName in self.subRoutineSymbolTable.table.keys():
             return self.subRoutineSymbolTable.typeOf(varName)
-        elif varName in self.classSymbolTable.keys():
+        elif varName in self.classSymbolTable.table.keys():
             return self.classSymbolTable.typeOf(varName)
         else:
             return None # the name is subroutine name or class name
@@ -84,7 +84,7 @@ class CompilationEngine():
     def _getVarKindFromTables(self, varName):
         if varName in self.subRoutineSymbolTable.table.keys():
             return self.subRoutineSymbolTable.kindOf(varName)
-        elif varName in self.classSymbolTable.keys():
+        elif varName in self.classSymbolTable.table.keys():
             return self.classSymbolTable.kindOf(varName)
         else:
             return None # the name is subroutine name or class name
@@ -92,7 +92,7 @@ class CompilationEngine():
     def _getVarIndexFromTables(self, varName):
         if varName in self.subRoutineSymbolTable.table.keys():
             return self.subRoutineSymbolTable.indexOf(varName)
-        elif varName in self.classSymbolTable.keys():
+        elif varName in self.classSymbolTable.table.keys():
             return self.classSymbolTable.indexOf(varName)
         else:
             return None # the name is subroutine name or class name          
@@ -180,7 +180,7 @@ class CompilationEngine():
         self.eat_write(';')
         self.printCompileGeneral('</classVarDec>')
 
-    # compile a complete method, function, or constructor
+    # (X) compile a complete method, function, or constructor
     def compileSubroutine(self):
 
 
@@ -210,7 +210,7 @@ class CompilationEngine():
         assert self._getTokenLexicalType() == 'identifier'
         self.printCompiledTokenFull()
 
-        self.currentSubroutineName = self.className + self._getTokenLexical()
+        self.currentSubroutineName = self.className + '.' + self._getTokenLexical()
 
 
         if self.currentSubroutineType == 'constructor':
@@ -293,8 +293,8 @@ class CompilationEngine():
             self.compileVarDec()
 
 
-        nVars = self.subRoutineSymbolTable.table.varCount('var')
-        nArgs = self.subRoutineSymbolTable.table.varCount('argument')
+        nVars = self.subRoutineSymbolTable.varCount('var')
+        nArgs = self.subRoutineSymbolTable.varCount('argument')
 
         if self.currentSubroutineType == 'method':
             self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
@@ -399,8 +399,12 @@ class CompilationEngine():
         varIndex = self._getVarIndexFromTables(varName)
         varKind = self._getVarKindFromTables(varName)
 
+        isArrAssign = False
+
         # optional expression in case of array
         if self._getLookAheadLexical() == '[':
+            # push arr
+            self.VMWriter.writePush(varKind, varIndex )
             # '['
             self.eat_write('[')
             self._advance()
@@ -409,6 +413,9 @@ class CompilationEngine():
             # ']'
             self.eat_write(']')
 
+            self.VMWriter.writeArithmatic('add')
+            isArrAssign = True
+
         # '='
         self.eat_write('=')
         self._advance()
@@ -416,8 +423,14 @@ class CompilationEngine():
         # compile expression
         self.compileExpression()
 
-        # write pop after expression
-        self.VMWriter.writePop(varKind, varIndex)
+        if isArrAssign:
+            self.VMWriter.writePop('temp', 0)
+            self.VMWriter.writePop('pointer', 1)
+            self.VMWriter.writePush('temp', 0)
+            self.VMWriter.writePop('that', 0)
+        else:
+            # write pop after expression
+            self.VMWriter.writePop(varKind, varIndex)
 
         # ';'
         #print("finishing let ;")
@@ -545,7 +558,7 @@ class CompilationEngine():
         self.eat_write(';')
         self.printCompileGeneral('</returnStatement>')
 
-    # compile an expression
+    # (X) compile an expression
     def compileExpression(self):
 
         self.printCompileGeneral('<expression>')
@@ -555,10 +568,30 @@ class CompilationEngine():
         # (op term)
         if self._getLookAheadLexical() in ['+', '-', '*', '/', '&amp;', '|', '&lt;', '&gt;', '=' ]:
             # op
+            op = self._getLookAheadLexical()
             self._advance()
             self.printCompiledTokenFull()
             self._advance()
             self.compileTerm()
+
+            if op == '+':
+                self.VMWriter.writeArithmatic('add')
+            elif op == '-':
+                self.VMWriter.writeArithmatic('sub')
+            elif op == '*':
+                self.VMWriter.writeCall('Math.multiply', 2)
+            elif op == '/':
+                self.VMWriter.writeCall('Math.divide', 2)
+            elif op == '&amp':
+                self.VMWriter.writeArithmatic('and')
+            elif op == '|':
+                self.VMWriter.writeArithmatic('or')
+            elif op == '&lt':
+                self.VMWriter.writeArithmatic('lt')
+            elif op == '&gt':
+                self.VMWriter.writeArithmatic('gt')
+            elif op == '=':
+                self.VMWriter.writeArithmatic('eq')
 
         self.printCompileGeneral('</expression>')
 
@@ -572,22 +605,38 @@ class CompilationEngine():
         if previous != 'do':
             self.printCompileGeneral('<term>')
 
-        # integer
+        # (X) integer
         if self._getTokenLexicalType() == 'integerConstant':
             self.printCompiledTokenFull()
             # push constant INT
-            self.VMWriter.writePush('constant', self._getTokenLexical())
+            self.VMWriter.writePush('constant', int(self._getTokenLexical()))
             
 
-        # string
+        # (X) string
         elif self._getTokenLexicalType() == 'stringConstant':
             self.printCompiledTokenFull()
-            #self.VMWriter.writeCall('String.new()', )
+            stringIn = self._getTokenLexical()
+            length = len(stringIn)
+            self.VMWriter.writePush('constant', length)
+            self.VMWriter.writeCall('String.new', 1 )
 
-        # keyword constant
+        # (X) keyword constant
         elif self._getTokenLexical() in ['true', 'false', 'null', 'this']:
             self.printCompileGeneral('<keyword>{kw}</keyword>'.format(kw = self._getTokenLexical()))
+            cnst = self._getTokenLexical()
 
+            if cnst == 'true':
+                self.VMWriter.writePush('constant', 1)
+                self.VMWriter.writeArithmatic('neg')
+
+            elif cnst == 'false':
+                self.VMWriter.writePush('constant', 0)
+
+            elif cnst == 'null':
+                self.VMWriter.writePush('constant', 0)
+
+            elif cnst == 'true':
+                self.VMWriter.writePush('pointer', 0)
 
         # varName | varName[expression] | subroutineCall 
         elif self._getTokenLexicalType() == 'identifier':
@@ -595,6 +644,11 @@ class CompilationEngine():
             if self._getLookAheadLexical() == '[':
                 # varName
                 self.printCompiledTokenFull()
+                varName = self._getTokenLexical()
+                varKind = self._getVarKindFromTables(varName)
+                varIndex = self._getVarIndexFromTables(varName)
+                self.VMWriter.writePush(varKind, varIndex )
+
                 # '['
                 self.eat_write('[')
                 self._advance()
@@ -603,51 +657,83 @@ class CompilationEngine():
                 # ']'
                 self.eat_write(']')
 
-            # subrountineCall
+                self.VMWriter.writeArithmatic('add')
+
+            # (X) subrountineCall
             # subroutineName (expressionList)
             elif self._getLookAheadLexical() == '(':
                 # subroutineName
                 self.printCompiledTokenFull()
+                funcName = self._getTokenLexical()
                 # '('
                 self.eat_write('(')
 
                 # expressionList
-                self.compileExpressionList()
+                nArgs = self.compileExpressionList()
+
+                self.VMWriter.writeCall(funcName, nArgs)
 
                 # ')'
                 self.eat_write(')')
 
-            # subrountineCall
+            # (X) subrountineCall
             # className | varName . subroutineName (expressionList)
             elif self._getLookAheadLexical() == '.':
+
                 # class | varName
                 self.printCompiledTokenFull()
+                classNameVarName = self._getTokenLexical()
+
+
+                varName = self._getTokenLexical()
+                varKind = self._getVarKindFromTables(varName)
+                varIndex = self._getVarIndexFromTables(varName)
+                # push obj
+                #print(varName)
+                
+                if varKind != None:
+                    self.VMWriter.writePush(varKind, varIndex )
+
                 # '.'
                 self.eat_write('.')
                 self._advance()
 
+
                 #subroutineName
                 assert self._getTokenLexicalType() == 'identifier'
                 self.printCompiledTokenFull()
+                subroutineName = self._getTokenLexical()
 
                 # '('
                 self.eat_write('(')
                 # expressionList
-                self.compileExpressionList()
+                
+
+                # push other expression
+                nArgs = self.compileExpressionList()
 
                 # ')'
                 self.eat_write(')')
 
-            # varName
+                self.VMWriter.writeCall(classNameVarName+'.'+subroutineName, nArgs+1)
+
+            # (X) varName
             else:
+                varName = self._getTokenLexical()
+                varKind = self._getVarKindFromTables(varName)
+                varIndex = self._getVarIndexFromTables(varName)
+                
+                self.VMWriter.writePush(varKind, varIndex )
+
                 self.printCompiledTokenFull()
 
 
         
-        # unaryOp
+        # (X) unaryOp
         elif self._getTokenLexical() in ['-', '~'] :
 
             self.printCompiledTokenFull()
+            op = self._getTokenLexical()
 
             if self._getLookAheadLexical() == '(':
                 self._advance()
@@ -657,7 +743,12 @@ class CompilationEngine():
                 self._advance()        
                 self.compileTerm()
 
-        # ( expression )
+            if op == '-':
+                self.VMWriter.writeArithmatic('neg')
+            elif op == '~':
+                self.VMWriter.writeArithmatic('not')
+
+        # (X) ( expression )
 
         if self._getTokenLexical() == '(':
             self.printCompiledTokenFull()
@@ -669,14 +760,15 @@ class CompilationEngine():
         if previous != 'do':
             self.printCompileGeneral('</term>')
 
-    # compile a possibly empty comma separated list
+    # (X) compile a possibly empty comma separated list
     # of expressions. Return the number of 
     # expressions in the list
     def compileExpressionList(self):
         self.printCompileGeneral('<expressionList>')
         count = 0
+
         
-        # empty
+        # not empty
         if self._getLookAheadLexical() != ')':
             self._advance()
             self.compileExpression()

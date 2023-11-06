@@ -693,10 +693,11 @@ class CompilationEngine():
                 # '('
                 self.eat_write('(')
 
+                self.VMWriter.writePush('pointer', 0)
+
                 # expressionList
                 nArgs = self.compileExpressionList()
 
-                self.VMWriter.writePush('pointer', 0)
                 self.VMWriter.writeCall(self.className + '.'+funcName, nArgs + 1)
 
                 # ')'

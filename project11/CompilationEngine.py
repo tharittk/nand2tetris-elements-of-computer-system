@@ -53,7 +53,10 @@ class CompilationEngine():
         return self.tokenizedInputList[self.currentTokenIndex]
 
     def _getTokenLexical(self):
-        return  self.currentToken.split(" ")[1]
+        if self._getTokenLexicalType() == 'stringConstant':
+            return self.currentToken.split(">")[1].split("<")[0][1:-1]#conventional leading white space
+        else:
+            return  self.currentToken.split(" ")[1]
     
     def _getLookAheadLexical(self):
         tokenAhead = self.tokenizedInputList[self.currentTokenIndex + 1]
@@ -629,8 +632,14 @@ class CompilationEngine():
             self.printCompiledTokenFull()
             stringIn = self._getTokenLexical()
             length = len(stringIn)
+            #print(stringIn)
             self.VMWriter.writePush('constant', length)
             self.VMWriter.writeCall('String.new', 1 )
+
+            for i in range(length):
+                self.VMWriter.writePush('constant', ord(stringIn[i]))
+                self.VMWriter.writeCall('String.appendChar', 2)
+
 
         # (X) keyword constant
         elif self._getTokenLexical() in ['true', 'false', 'null', 'this']:
@@ -669,7 +678,11 @@ class CompilationEngine():
                 # ']'
                 self.eat_write(']')
 
+                # get address that = arr + i
                 self.VMWriter.writeArithmatic('add')
+                self.VMWriter.writePop('pointer', 1)
+                # get value at that address i.e. arr[i]
+                self.VMWriter.writePush('that', 0)
 
             # (X) subrountineCall
             # subroutineName (expressionList)

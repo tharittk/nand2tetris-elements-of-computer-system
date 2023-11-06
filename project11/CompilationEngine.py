@@ -226,7 +226,7 @@ class CompilationEngine():
         elif self.currentSubroutineType == 'function':
             pass
 
-        print('compiling', self.currentSubroutineName)
+        #print('compiling', self.currentSubroutineName)
 
         # '('
         self.eat_write('(')
@@ -301,15 +301,16 @@ class CompilationEngine():
         nVars = self.subRoutineSymbolTable.varCount('local')
         nArgs = self.subRoutineSymbolTable.varCount('argument')
 
-        print('nVars, ', nVars, 'nArgs', nArgs)
+        #print('nVars, ', nVars, 'nArgs', nArgs)
 
         if self.currentSubroutineType == 'method':
             self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
             self.VMWriter.writePush('argument', 0)
             self.VMWriter.writePop('pointer', 0)
         elif self.currentSubroutineType == 'constructor':
+            nFields = self.classSymbolTable.varCount('field')
             self.VMWriter.writeFunction(self.currentSubroutineName, nVars)
-            self.VMWriter.writePush('constant', nArgs)
+            self.VMWriter.writePush('constant', nFields)
             self.VMWriter.writeCall('Memory.alloc', 1)
             self.VMWriter.writePop('pointer', 0)
         elif self.currentSubroutineType == 'function':
@@ -584,7 +585,7 @@ class CompilationEngine():
             self.printCompiledTokenFull()
             self._advance()
             self.compileTerm()
-
+            #print('in ops', op)
             if op == '+':
                 self.VMWriter.writeArithmatic('add')
             elif op == '-':
@@ -593,13 +594,13 @@ class CompilationEngine():
                 self.VMWriter.writeCall('Math.multiply', 2)
             elif op == '/':
                 self.VMWriter.writeCall('Math.divide', 2)
-            elif op == '&amp':
+            elif op == '&amp;':
                 self.VMWriter.writeArithmatic('and')
             elif op == '|':
                 self.VMWriter.writeArithmatic('or')
-            elif op == '&lt':
+            elif op == '&lt;':
                 self.VMWriter.writeArithmatic('lt')
-            elif op == '&gt':
+            elif op == '&gt;':
                 self.VMWriter.writeArithmatic('gt')
             elif op == '=':
                 self.VMWriter.writeArithmatic('eq')
@@ -646,7 +647,7 @@ class CompilationEngine():
             elif cnst == 'null':
                 self.VMWriter.writePush('constant', 0)
 
-            elif cnst == 'true':
+            elif cnst == 'this':
                 self.VMWriter.writePush('pointer', 0)
 
         # varName | varName[expression] | subroutineCall 
@@ -682,7 +683,8 @@ class CompilationEngine():
                 # expressionList
                 nArgs = self.compileExpressionList()
 
-                self.VMWriter.writeCall(funcName, nArgs)
+                self.VMWriter.writePush('pointer', 0)
+                self.VMWriter.writeCall(self.className + '.'+funcName, nArgs + 1)
 
                 # ')'
                 self.eat_write(')')
@@ -693,14 +695,19 @@ class CompilationEngine():
 
                 # class | varName
                 self.printCompiledTokenFull()
+                # need to be className
                 classNameVarName = self._getTokenLexical()
 
 
                 varName = self._getTokenLexical()
                 varKind = self._getVarKindFromTables(varName)
                 varIndex = self._getVarIndexFromTables(varName)
+                
+                className = self._getVarTypeFromTables(varName)
                 # push obj
                 #print(varName)
+
+
                 
                 if varKind != None:
                     self.VMWriter.writePush(varKind, varIndex )
@@ -729,7 +736,7 @@ class CompilationEngine():
                 if varKind == None: # OS
                     self.VMWriter.writeCall(classNameVarName+'.'+subroutineName, nArgs)
                 else:
-                    self.VMWriter.writeCall(classNameVarName+'.'+subroutineName, nArgs+1)
+                    self.VMWriter.writeCall(className+'.'+subroutineName, nArgs+1)
 
             # (X) varName
             else:

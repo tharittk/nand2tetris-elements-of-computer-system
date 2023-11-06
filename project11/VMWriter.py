@@ -12,12 +12,16 @@ class VMWriter():
 
     # write VM push command
     def writePush(self, segment, idx):
+        if segment == 'field':
+            segment = 'this'
         toWrite = '''push {segment} {idx}'''.format(segment = segment.lower(), idx = idx)
 
         self._open_and_write(toWrite)
 
     # write VM pop command
     def writePop(self, segment, idx):
+        if segment == 'field':
+            segment = 'this'        
         toWrite = '''pop {segment} {idx}'''.format(segment = segment.lower(), idx = idx)
 
         self._open_and_write(toWrite)

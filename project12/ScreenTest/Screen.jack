@@ -23,14 +23,18 @@ class Screen {
         while (k < 16){
             let twoToThe[k] = num;
             let num = num + num; // 2x num
+            let k = k +1 ;
+
         }
+        let color = true;
+
         return;
     }
 
     /** Erases the entire screen. */
     function void clearScreen() {
-        setColor(false);
-        drawRectangle(0, 0, 511, 255);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(0, 0, 511, 255);
         return;
 
     }
@@ -38,12 +42,7 @@ class Screen {
     /** Sets the current color, to be used for all subsequent drawXXX commands.
      *  Black is represented by true, white by false. */
     function void setColor(boolean b) {
-        if(b){
-            let color = true;
-        }
-        else{
-            let color = false;
-        }
+        let color = b;
         return;
 
     }
@@ -58,7 +57,7 @@ class Screen {
         // set (x % 16)th bit of value to the current color
         let toSetBit = x;
         while (toSetBit > 15){
-            let toSetBit = (toSetBit - 16)
+            let toSetBit = (toSetBit - 16);
         }
     
         let oper = twoToThe[toSetBit];// 0000 1 0000
@@ -70,87 +69,83 @@ class Screen {
             let oper = ~oper; // 1111 0 1111
             let value = (value & oper);
         }
-        do Memory.poke(adress, value);
+        //do Output.printInt(address)
+        do Memory.poke(16384 + address, value);
         return;
 
     }
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
-        var int dx, dy, diff, a, b, tmp_x, tmp_y, absdy;
+        var int x,y,dx, dy, diff, a, b, tmp_x, tmp_y, xDir, yDir;
 
-        // switch for convention dy always positive
-        if (y1 > y2){
-            let tmp_x = x1;
-            let x1 = x2;
-            let x2 = tmp_x;
-            let tmp_y = y1;
-            let y1 = y2;
-            let y2 = tmp_y;
-        }
+        let x = x1;
+        let y = y1;
+        let xDir = (x2 > x1);
+        let yDir = (y2 > y1);
 
-        let dx = x2 - x1;
-        let dy = y2 - y1;
+        let dx = Math.abs(x2 - x1); // simplifying cases
+        let dy = Math.abs(y2 - y1);
         let a = 0;
         let b = 0;
         let diff = 0;
 
-        // special case horizontal line
-        if (x1 = x2){
-            while ( b < dy){
-                do drawPixel(x1, y + b);
-                let b = b + 1; 
-            }
-        }
         // special case vertical line
-        if (y1 = y2){
-            if (x1 < x2){
-                while ( a < dx){
-                    do drawPixel(x1 + a, y);
-                    let a = a + 1; 
+        if (x1 = x2){
+            while ((b < dy) | (b = dy)){
+                if (yDir){
+                    do Screen.drawPixel(x1, y1 + b);
                 }
+                else{
+                    do Screen.drawPixel(x1, y1 - b);
+                }
+                let b = b + 1;
             }
-            else{
-                while ( a > dx){
-                    do drawPixel(x1 + a, y);
-                    let a = a - 1; 
-                }               
-            }
-
+            return;
         }
-        // general case
-        if (~(y1 = y2) and ~(x1 = x2)){
-
-            if (dx > 0){
-
-                while ( ((a < dx) or (a = dx)) and ( (b < dy) or (b = dy) ) ){
-
-                    do drawPixel(x + a, y + b);
-
-                    if ( (b / a) > (dy / dx)){
-                        let a = a + 1;
-                    }
-                    else{
-                        let b = b + 1;
-                    }
+        // special case horizontal
+        if (y1 = y2){
+            while ((a < dx) | (a = dx)){
+                if (xDir){
+                    do Screen.drawPixel(x1 + a, y1);
                 }
-            }
-            // dx < 0
-            else{
-                while ( ((a > dx) or (a = dx)) and ( (b < dy) or (b = dy) ) ){
-
-                    do drawPixel(x + a, y + b);
-
-                    if ((b / a) < (dy / dx)){
-                        let a = a - 1;
-                    }
-                    else{
-                        let b = b + 1;
-                    }
+                else{
+                    do Screen.drawPixel(x1 - a, y1);
                 }
+                let a = a + 1;
             }
-        } //end of if general
+            return;
+        }
+
+        // general case -- 4 scenarios
+        while (((a < dx) | (a = dx)) & (((b < dy) | (b = dy)))) {
+
+            if (xDir) {
+                let tmp_x = a;
+            } else {
+                let tmp_x = -a;
+            }
+            if (yDir) {
+                let tmp_y = b;
+            } else {
+                let tmp_y = -b;
+            }
+
+            do Screen.drawPixel(x + tmp_x, y + tmp_y);
+
+            if (diff < 0) {
+                let a = a + 1;
+                let diff = diff + dy;
+            } else {
+                let b = b + 1;
+                let diff = diff - dx;
+            }
+        }
+    
         return;
+        
+        
+        
 
     }
 
@@ -158,10 +153,14 @@ class Screen {
     /** Draws a filled rectangle whose top left corner is (x1, y1)
      * and bottom right corner is (x2,y2), using the current color. */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
-        drawLine(x1,y1, x1,y2 ); // left
-        drawLine(x1,y1,x2,y1); // top
-        drawLine(x2,y1,x2,y2); // right
-        drawLine(x1,y2,x2,y2); // bottom
+        // filled rec
+        var int y;
+        let y = y1;
+        while ((y < y2) | (y = y2)){
+            do Screen.drawLine(x1, y, x2, y);
+            let y = y + 1;
+
+        }
         return;
 
     }
@@ -175,7 +174,8 @@ class Screen {
             let r = 181;
         }
         while (dy < r){
-            drawLine( cx - Math.sqrt((r * r) - (dy * dy)), cy + dy, cx + Math.sqrt((r * r) - (dy * dy)), cy  + dy);
+            do Screen.drawLine( cx - Math.sqrt((r * r) - (dy * dy)), cy + dy, cx + Math.sqrt((r * r) - (dy * dy)), cy  + dy);
+            let dy = dy + 1;
         }
         return;
     }

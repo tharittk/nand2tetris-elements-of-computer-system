@@ -208,13 +208,24 @@ class Output {
     /** displays the given string starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printString(String s) {
-        
-
+        var int lengthStr, i;
+        let i = 0;
+        let lengthStr = s.length();
+        while (i < lengthStr){
+            do Output.printChar(s.charAt(i));
+            let i = i + 1;
+        }
+        return;
     }
 
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
+        var String str;
+        let s = String.new(7); //max of 16 bit
+        do str.setInt(i)
+        do Output.printString(str);
+        return;
     }
 
     /** Advances the cursor to the beginning of the next line. */

@@ -18,9 +18,13 @@ class Output {
 
     // Character map for displaying characters
     static Array charMaps; 
+    static int cursorRow, cursorCol;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
+        let cursorRow = 0;
+        let cursorCol = 0;
+        return;
     }
 
     // Initializes the character map array
@@ -176,16 +180,36 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
+        cursorRow = i;
+        cursorCol = j;
+        return;
+
     }
 
     /** Displays the given character at the cursor location,
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
+        var int irow, topLeftCursorAddr;
+        var Array charBitMap;
+
+        let charBitMap = getMap(c);
+        let irow = 0;
+
+        // confused
+        let topLeftCursorAddr = ((8 * cursorCol) + (512 * 11 * cursorRow)) / 16;
+        while (irow < 11){
+            let address = topLeftCursorAddr + irow * 32 ;
+            do Memory.poke(16384 + address, charBitMap[irow]);
+            let irow = irow + 1;
+        }
+        
     }
 
     /** displays the given string starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printString(String s) {
+        
+
     }
 
     /** Displays the given integer starting at the cursor location,
@@ -195,9 +219,13 @@ class Output {
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
+        do moveCursor(cursorRow + 1, 0);
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
+        do moveCursor(cursorRow, cursorCol - 1);
+        return;
     }
+
 }

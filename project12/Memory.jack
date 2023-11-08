@@ -18,6 +18,8 @@ class Memory {
         let freeList = heap;
         let heap[0] = 0 ; // next
         let heap[1] = 14334; //length
+        return;
+
 
     }
 
@@ -29,6 +31,8 @@ class Memory {
     /** Sets the RAM value at the given address to the given value. */
     function void poke(int address, int value) {
         let ram[address] = value;
+        return;
+
     }
 
     /** Finds an available RAM block of the given size and returns
@@ -71,6 +75,7 @@ class Memory {
         }
 
         let currentFreeList[0] = o[-2]; // o[-2] is null by defualt
+        return;
 
     }
 

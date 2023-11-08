@@ -24,12 +24,15 @@ class Screen {
             let twoToThe[k] = num;
             let num = num + num; // 2x num
         }
+        return;
     }
 
     /** Erases the entire screen. */
     function void clearScreen() {
         setColor(false);
         drawRectangle(0, 0, 511, 255);
+        return;
+
     }
 
     /** Sets the current color, to be used for all subsequent drawXXX commands.
@@ -41,6 +44,8 @@ class Screen {
         else{
             let color = false;
         }
+        return;
+
     }
 
     /** Draws the (x,y) pixel, using the current color. */
@@ -66,6 +71,7 @@ class Screen {
             let value = (value & oper);
         }
         do Memory.poke(adress, value);
+        return;
 
     }
 
@@ -92,7 +98,7 @@ class Screen {
         // special case horizontal line
         if (x1 = x2){
             while ( b < dy){
-                drawPixel(x1, y + b);
+                do drawPixel(x1, y + b);
                 let b = b + 1; 
             }
         }
@@ -100,13 +106,13 @@ class Screen {
         if (y1 = y2){
             if (x1 < x2){
                 while ( a < dx){
-                    drawPixel(x1 + a, y);
+                    do drawPixel(x1 + a, y);
                     let a = a + 1; 
                 }
             }
             else{
                 while ( a > dx){
-                    drawPixel(x1 + a, y);
+                    do drawPixel(x1 + a, y);
                     let a = a - 1; 
                 }               
             }
@@ -119,7 +125,7 @@ class Screen {
 
                 while ( ((a < dx) or (a = dx)) and ( (b < dy) or (b = dy) ) ){
 
-                    drawPixel(x + a, y + b)
+                    do drawPixel(x + a, y + b);
 
                     if ( (b / a) > (dy / dx)){
                         let a = a + 1;
@@ -133,7 +139,7 @@ class Screen {
             else{
                 while ( ((a > dx) or (a = dx)) and ( (b < dy) or (b = dy) ) ){
 
-                    drawPixel(x + a, y + b)
+                    do drawPixel(x + a, y + b);
 
                     if ((b / a) < (dy / dx)){
                         let a = a - 1;
@@ -144,6 +150,8 @@ class Screen {
                 }
             }
         } //end of if general
+        return;
+
     }
 
 
@@ -154,6 +162,8 @@ class Screen {
         drawLine(x1,y1,x2,y1); // top
         drawLine(x2,y1,x2,y2); // right
         drawLine(x1,y2,x2,y2); // bottom
+        return;
+
     }
 
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
@@ -167,5 +177,6 @@ class Screen {
         while (dy < r){
             drawLine( cx - Math.sqrt((r * r) - (dy * dy)), cy + dy, cx + Math.sqrt((r * r) - (dy * dy)), cy  + dy);
         }
+        return;
     }
 }

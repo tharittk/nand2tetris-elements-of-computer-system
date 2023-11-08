@@ -95,6 +95,7 @@ class Math {
         }
         
         let q = divide(x, 2 * y);
+
         if ((x - (2*q*y)) < y){
             return 2*q;
         }
@@ -106,7 +107,29 @@ class Math {
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
-    }
+        var int twoToTheN, y, i, j, tmp;
+        
+        while (twoToThe[i] > x){
+            let i = i - 1;
+        }
+        let i = i + 1; //get the loweest upper-bound
+
+        let y = 0;
+        let j = (i / 2) - 1;
+
+
+        while (j > -1){
+            let tmp = (y + twoToThe[j]) *  (y + twoToThe[j]);
+            if ( (tmp < x or tmp == x) and tmp > 0){
+                let y = (y + twoToThe[j]);
+            }
+            let j = j - 1;
+        }
+
+        return y;
+
+        
+        }
 
     /** Returns the greater number. */
     function int max(int a, int b) {

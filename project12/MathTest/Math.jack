@@ -18,7 +18,9 @@ class Math {
         while (k < 16){
             let twoToThe[k] = num;
             let num = num + num; // 2x num
+            let k = k +1 ;
         }
+        return;
     }
 
     /** Returns the absolute value of x. */
@@ -30,33 +32,35 @@ class Math {
             return x;
         }
     }
-
     // Return true if the i-th bit of x is 1, false o.w.
     function boolean bit(int x, int i){
         // convert x to binary
-        var int k;
-        var Array bits;
+        /*
+        var int k, remaining;
+        var Array bb;
 
-        let bits = Array.new(16)
+        let bb = Array.new(16);
         let k = 15;
         let remaining = x;
         while (k > -1){
-            if ((twoToThe[k] < remaining) or (twoToThe[k] = remaining))
+            if ((twoToThe[k] < remaining) | (twoToThe[k] = remaining))
             {
                 let remaining = remaining - twoToThe[k];
-                let bits[k] = 1;
+                let bb[k] = 1;
             }
             else{
-                let bits[k] = 0;
+                let bb[k] = 0;
             }
         }
         // check
-        if (bits[i]){
+        if (bb[i]=1){
             return true;
         }
         else{
             return false;
-        }
+        }*/
+        return ((x & twoToThe[i]) = twoToThe[i]);
+
     }
 
     /** Returns the product of x and y. 
@@ -65,12 +69,12 @@ class Math {
      *  the Jack expressions x*y and multiply(x,y) return the same value.
      */
     function int multiply(int x, int y) {
-        var int sum, i;
+        var int sum, i, shiftedX;
         let i = 0;
         let sum = 0;
         let shiftedX = x;
         while (i < 16){
-            if (bit(x, i)){
+            if (Math.bit(y, i)){
                 let sum = sum + shiftedX;
             }
             let shiftedX = (shiftedX + shiftedX);
@@ -85,23 +89,32 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     function int divide(int x, int y) {
-        var int q;
-        
-        let x = abs(x);
-        let y = abs(y);
+        var int q, result;
+        var boolean isNegX, isNegY;
 
-        if (y > x) or (y < 0){
+        let isNegX = x < 0;
+        let isNegY = y < 0;
+        
+        let x = Math.abs(x);
+        let y = Math.abs(y);
+
+        if ((y > x) | (y < 0)){
             return 0;
         }
         
-        let q = divide(x, 2 * y);
+        let q = Math.divide(x, 2 * y);
 
         if ((x - (2*q*y)) < y){
-            return 2*q;
+            let result =  2*q;
         }
         else{
-            return (2*q) + 1;
+            let result = (2*q) + 1;
         }
+        if (isNegX = isNegY) {
+        return result;
+        } else {
+        return -result;
+    }
 
     }
 
@@ -115,21 +128,20 @@ class Math {
         let i = i + 1; //get the loweest upper-bound
 
         let y = 0;
-        let j = (i / 2) - 1;
-
+        let j = 7; //mostly 7
 
         while (j > -1){
             let tmp = (y + twoToThe[j]) *  (y + twoToThe[j]);
-            if ( (tmp < x or tmp = x) and tmp > 0){
+            if ( ((tmp < x) | (tmp = x)) & (tmp > 0)){
                 let y = (y + twoToThe[j]);
-            }
+                }
             let j = j - 1;
         }
 
         return y;
 
         
-        }
+    }
 
     /** Returns the greater number. */
     function int max(int a, int b) {

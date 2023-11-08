@@ -41,7 +41,7 @@ class Math {
         let k = 15;
         let remaining = x;
         while (k > -1){
-            if ((twoToThe[k] < remaining) or (twoToThe[k] == remaining))
+            if ((twoToThe[k] < remaining) or (twoToThe[k] = remaining))
             {
                 let remaining = remaining - twoToThe[k];
                 let bits[k] = 1;
@@ -51,7 +51,7 @@ class Math {
             }
         }
         // check
-        if (bits[i] == 1){
+        if (bits[i]){
             return true;
         }
         else{
@@ -120,7 +120,7 @@ class Math {
 
         while (j > -1){
             let tmp = (y + twoToThe[j]) *  (y + twoToThe[j]);
-            if ( (tmp < x or tmp == x) and tmp > 0){
+            if ( (tmp < x or tmp = x) and tmp > 0){
                 let y = (y + twoToThe[j]);
             }
             let j = j - 1;
